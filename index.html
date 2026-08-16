@@ -220,7 +220,7 @@ function toggleSheet(show){
   if(show){ const s2=document.getElementById('voiceSel2'); if(s2) s2.innerHTML=voiceOptions(); sh.classList.remove('hidden'); }
   else sh.classList.add('hidden');
 }
-const CAT_ICON = {'Food & Coffee':'☕','Shopping':'🛍️','Problems & Returns':'🔧','Getting Around':'🧭','Phone & Booking':'📞','Small Talk':'💬','Work & Meetings':'💼','Clarify & Repair':'👂','Travel & Hotel':'🧳'};
+const CAT_ICON = {'Food & Coffee':'☕','Shopping':'🛍️','Problems & Returns':'🔧','Getting Around':'🧭','Phone & Booking':'📞','Small Talk':'💬','Work & Meetings':'💼','Clarify & Repair':'👂','Travel & Hotel':'🧳','Health & Doctor':'🩺','Money & Bank':'🏦','Home & Services':'🏠','Help & Favours':'🤝','Feelings & Reactions':'💛','Making Plans':'📅'};
 function catIcon(c){ return CAT_ICON[c] || '🗣️'; }
 // scene narration: English (immersion-first) via English voice
 function narrateScene(id){ const s=SCENARIOS.find(x=>x.id===id); if(s) speak((s.setup||s.ctx)+(s.goal?'. '+s.goal:''), 0.98, enVoice); }
