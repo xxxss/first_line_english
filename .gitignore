@@ -1,9 +1,6 @@
 # macOS
 .DS_Store
 
-# 构建产物（deploy/ 是源文件的副本，由构建脚本生成，不进库）
-deploy/
-
 # 私有语料原始素材（大文件、私有，不公开）
 sentences.txt
 
