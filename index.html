@@ -311,15 +311,16 @@ function listen(onOnset, onEnd){
 function stopListen(){ if(rafId) cancelAnimationFrame(rafId); rafId=null; }
 
 //////////////////// practice flow ////////////////////
-let queue=[], queue2=[], pass=1, qi=0, curLat=null;
+let queue=[], queue2=[], pass=1, qi=0, curLat=null, focusCat=null;
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const x=a[i]; a[i]=a[j]; a[j]=x; } return a; }
 // 会话进度持久化：中途关掉再回来能从断点续上，两轮不会丢
-function saveSession(){ state.session = {queue, queue2, pass, qi, day: today()}; save(); }
+function saveSession(){ state.session = {queue, queue2, pass, qi, day: today(), focus: focusCat}; save(); }
 function clearSession(){ state.session = null; save(); }
 function hasSession(){ return !!(state.session && state.session.day===today()); }
-function resumeSession(){ const s=state.session; queue=s.queue; queue2=s.queue2; pass=s.pass; qi=s.qi; runStep(); }
+function resumeSession(){ const s=state.session; queue=s.queue; queue2=s.queue2; pass=s.pass; qi=s.qi; focusCat=s.focus||null; runStep(); }
 
 function startSession(){
+  focusCat=null;
   const t=today();
   if(state.newDay!==t){ state.newDay=t; state.newCount=0; }
   const {reviews, news} = computePlan();
@@ -327,6 +328,18 @@ function startSession(){
   state.newCount = (state.newCount||0) + news.length;
   queue = [...reviews, ...news];
   queue2 = shuffle([...queue]);   // 第2轮(极速轮)打乱顺序，让每句的提取远离它的跟读
+  pass = 1; qi = 0;
+  if(queue.length===0){ save(); renderHome(); return; }
+  saveSession();
+  runStep();
+}
+// 主题集中练习：为近期真实目标（如面试）针对性密集练一个类目，不受每日封顶限制；SRS 照常记
+function startFocus(cat){
+  focusCat = cat;
+  const ids = SCENARIOS.filter(s=>(s.cat||'Other')===cat).map(s=>s.id);
+  ids.forEach(id=>{ if(!state.introduced.includes(id)){ state.introduced.push(id); scState(id); } });
+  queue = [...ids];
+  queue2 = shuffle([...queue]);
   pass = 1; qi = 0;
   if(queue.length===0){ save(); renderHome(); return; }
   saveSession();
@@ -441,8 +454,12 @@ function renderHome(){
     </div>
   </div>`;
   const cats=[...new Set(SCENARIOS.map(s=>s.cat||'Other'))];
-  html += `<div class="card"><div class="big">All scenarios (${SCENARIOS.length})</div>` +
-    cats.map(c=>`<div class="pill" style="display:inline-block;margin:14px 0 2px">${catIcon(c)} ${c}</div>` +
+  html += `<div class="card"><div class="big">All scenarios (${SCENARIOS.length})</div>
+    <div class="ctx" style="margin-top:2px">Tap <b>Focus</b> on a topic to drill it intensively — great when you have a real goal coming up (an interview, a trip). It doesn't use up your daily goal.</div>` +
+    cats.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 2px">
+        <span class="pill">${catIcon(c)} ${c}</span>
+        <button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="startFocus('${c.replace(/'/g,"\\'")}')">Focus →</button>
+      </div>` +
       SCENARIOS.filter(s=>(s.cat||'Other')===c).map(s=>{
         const st=state.sc[s.id]; const on=state.introduced.includes(s.id); const box=st?st.box:'-';
         return `<div class="list-item"><div class="num">${s.id}</div>
@@ -616,24 +633,27 @@ function scoreScenario(id, score){
   else if(score==='bad') st.box = 1;
   st.due = today() + BOX_DAYS[st.box]*DAY;
   const t=today();
-  if(state.doneDay!==t){ state.doneDay=t; state.doneCount=0; }
-  state.doneCount = (state.doneCount||0) + 1;   // 计入今日已完成，用于每日目标封顶
+  if(!focusCat){   // focus 突击是额外练习，不占用每日目标配额
+    if(state.doneDay!==t){ state.doneDay=t; state.doneCount=0; }
+    state.doneCount = (state.doneCount||0) + 1;   // 计入今日已完成，用于每日目标封顶
+  }
   save();
   qi++; runStep();
 }
 function renderDone(){
   frozeMsg=0;
+  const wasFocus = focusCat;
   clearSession();
-  const plan=computePlan();
-  if(plan.reviews.length+plan.news.length===0) markStreakDone();   // 今天没剩的了 = 完成打卡，计入连胜
+  markStreakDone();   // 练完一轮（含 focus 突击）就算今天完成，计入连胜
   const lats = queue.map(id=>{const h=scState(id).hist; return h.length?h[h.length-1].lat:null;}).filter(x=>x!=null);
   const avg = lats.length? Math.round(lats.reduce((a,b)=>a+b,0)/lats.length):null;
+  focusCat=null;
   view().innerHTML = `<div class="card center">
     <div style="font-size:48px">🎉</div>
-    <div class="big" style="margin-top:8px">Done — ${queue.length} scenes today</div>
+    <div class="big" style="margin-top:8px">${wasFocus?`Focus: ${wasFocus}`:'Done'} — ${queue.length} scenes</div>
     <div class="lat good" style="margin-top:10px">🔥 ${state.streak||0}<small> day streak</small></div>
     ${avg!=null?`<div class="hint">${(avg/1000).toFixed(1)}s avg latency</div>`:''}
-    <div class="ctx" style="margin-top:8px">${frozeMsg>0?`❄️ Used ${frozeMsg} freeze to save your streak — nice one!`:`Come back tomorrow to keep it going.`}</div>
+    <div class="ctx" style="margin-top:8px">${frozeMsg>0?`❄️ Used ${frozeMsg} freeze to save your streak — nice one!`:(wasFocus?`Come back and drill this topic again anytime.`:`Come back tomorrow to keep it going.`)}</div>
     <button class="btn btn-primary" style="margin-top:8px" onclick="renderHome()">Done</button>
   </div>`;
 }
