@@ -424,7 +424,9 @@ function renderHome(){
   const backlog = state.introduced.filter(id=>scState(id).due<=t).length;   // 全部到期（含被顺延的）
   const rolled = Math.max(0, backlog - due);
   let html = '';
-  if(hasSession()){
+  const sess = hasSession() ? state.session : null;
+  if(sess && !sess.focus){
+    // 主线未完成 → 独占 Resume（每日任务，值得续完）
     html = `<div class="card">
       <div class="pill">In progress</div>
       <div class="big" style="margin-top:8px">Session in progress</div>
@@ -444,6 +446,15 @@ function renderHome(){
       <div class="big" style="margin-top:8px">All done today!</div>
       <div class="ctx">${backlog>0?`${backlog} more queued — they'll come tomorrow (your daily goal caps today, so it never piles up). `:`Tomorrow's due scenarios line up automatically. `}Keep your streak alive.</div>
     </div>`;
+  }
+  // focus 突击是可选的：未做完不锁死主线，显示一个可选的“继续”卡（想练多少练多少）
+  if(sess && sess.focus){
+    html = `<div class="card">
+      <div class="pill">📋 Focus paused</div>
+      <div class="big" style="margin-top:8px">${sess.focus}</div>
+      <div class="ctx">Practise as much as you like — no need to finish. Resume this topic, or just do your daily practice below. Progress is saved either way.</div>
+      <button class="btn btn-primary" onclick="resumeSession()">Resume focus →</button>
+    </div>` + html;
   }
   html += streakCardHTML();
   html += `<div class="card">
@@ -488,6 +499,7 @@ function renderScenarioIntro(s){
       <button class="btn btn-primary" onclick="startCue(${s.id})">Ready — let's go →</button>
     </div>
     <div class="hint center" style="margin-top:10px">Picture yourself in the scene, then start. <b>Timing begins only after they speak.</b></div>
+    <div class="center" style="margin-top:6px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="exitPractice()">⤺ Exit${focusCat?' focus':''}</button></div>
   </div>`;
 }
 // (2) response phase (timed): they speak → you reply, latency measured
@@ -512,6 +524,8 @@ function startCue(id){
 }
 function retryListen(id){ const s=SCENARIOS.find(x=>x.id===id);
   stopListen(); curLat=null; document.getElementById('latBox').innerHTML=''; playAndListen(s); }
+// 随时退出回首页（进度已逐题保存；focus 可只练一部分就走）
+function exitPractice(){ stopListen(); if('speechSynthesis' in window) speechSynthesis.cancel(); renderHome(); }
 
 let drillCount=0;
 // Step 1 — Shadowing: play the model and speak ALONG with it, copying rhythm & melody, ×3
@@ -554,6 +568,7 @@ function speedIntro(id){
       <button class="btn btn-primary" onclick="speedRound(${s.id},0)">Ready — beat the clock →</button>
     </div>
     <div class="hint center" style="margin-top:10px">Get back into the scene, then race — say your line from memory, faster each round. <b>Timing starts when you tap the mic.</b></div>
+    <div class="center" style="margin-top:6px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="exitPractice()">⤺ Exit${focusCat?' focus':''}</button></div>
   </div>`;
 }
 function speedRound(id, idx){
