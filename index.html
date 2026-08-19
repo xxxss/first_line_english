@@ -207,23 +207,22 @@ function rankVoice(v){
   if(/compact|eloquence|novelty|fred|albert|zarvox|trinoids|whisper|bells|bad|cellos|organ|bahh|boing|jester|superstar/i.test(n)) s-=200;
   return s;
 }
+function accFlag(v){ return /en-AU/i.test(v.lang)?'🇦🇺':/en-GB/i.test(v.lang)?'🇬🇧':/en-US/i.test(v.lang)?'🇺🇸':/en-IE/i.test(v.lang)?'🇮🇪':/en-IN/i.test(v.lang)?'🇮🇳':'🌐'; }
+function accOrder(v){ return /en-AU/i.test(v.lang)?0:/en-GB/i.test(v.lang)?1:/en-US/i.test(v.lang)?2:3; }
 function voiceLabel(v){
-  return /en-AU/i.test(v.lang)?'🇦🇺 Australian':/en-GB/i.test(v.lang)?'🇬🇧 British':/en-US/i.test(v.lang)?'🇺🇸 American':(v.lang||'English');
+  const name=(v.name||'').replace(/^(Microsoft|Google)\s+/i,'').trim();   // 去掉厂商前缀，保留声音名(如 Karen)
+  return `${accFlag(v)} ${name}`;
 }
 function voiceOptions(){
   return enVoices.map(v=>`<option value="${v.voiceURI}" ${v===enVoice?'selected':''}>${voiceLabel(v)}</option>`).join('');
 }
 function refreshVoices(){
   if(!('speechSynthesis' in window)) return;
-  const all = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
-  // 只保留 澳/英/美 各一个评分最高的正常人声（排除 novelty/compact 等怪音色）
-  const best=[];
-  [/en-AU/i,/en-GB/i,/en-US/i].forEach(rx=>{
-    const v = all.filter(x=>rx.test(x.lang)).sort((a,b)=>rankVoice(b)-rankVoice(a))[0];
-    if(v && rankVoice(v) > -50) best.push(v);
-  });
-  if(best.length===0 && all.length) best.push(all.slice().sort((a,b)=>rankVoice(b)-rankVoice(a))[0]);   // 回退
-  enVoices = best;
+  // 保留设备上所有正常英文人声（排除 novelty/compact 怪音），按口音分组、质量排序，带名字让用户自己挑
+  enVoices = speechSynthesis.getVoices()
+    .filter(v=>/^en/i.test(v.lang))
+    .filter(v=>rankVoice(v) > -50)
+    .sort((a,b)=> (accOrder(a)-accOrder(b)) || (rankVoice(b)-rankVoice(a)) || (a.name||'').localeCompare(b.name||''));
   const saved = localStorage.getItem(VOICE_KEY);
   enVoice = enVoices.find(v=>v.voiceURI===saved) || enVoices[0] || null;
   zhVoice = speechSynthesis.getVoices().find(v=>/^zh/i.test(v.lang)) || null;
@@ -249,7 +248,11 @@ function showNative(id){
   if(zhVoice && s.ctx) speak(s.ctx, 1.0, zhVoice);
 }
 function peek(id){ const s=SCENARIOS.find(x=>x.id===id); const el=document.getElementById('peek'); if(el&&s) el.textContent = s.target; }
-if('speechSynthesis' in window){ refreshVoices(); speechSynthesis.onvoiceschanged = refreshVoices; }
+if('speechSynthesis' in window){
+  refreshVoices(); speechSynthesis.onvoiceschanged = refreshVoices;
+  // iOS/PWA 有时延迟填充 voices 且不触发 voiceschanged —— 重试几次确保拿全（否则可能只有一个默认声）
+  [400,1200,3000].forEach(ms=>setTimeout(refreshVoices, ms));
+}
 function speak(text, rate=0.97, voice){
   return new Promise(res=>{
     if(!('speechSynthesis' in window) || !text){ setTimeout(res,150); return; }
