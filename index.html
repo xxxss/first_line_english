@@ -276,6 +276,7 @@ function voiceCardHTML(){
       ${voiceOptions()}
     </select>
     <button class="btn btn-ghost" style="margin-top:10px" onclick="testVoice()">🔊 Test</button>
+    <div class="hint" style="margin-top:10px;word-break:break-word">Build v0819c · detected: ${(('speechSynthesis' in window)?speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).map(v=>v.name).join(', '):'')||'(none yet — reopen in a second)'}</div>
   </div>`;
 }
 
