@@ -146,6 +146,12 @@ let state = load();
 if(state.streakDay===undefined) state.streakDay = 0;      // 上次"完成打卡"的那天
 if(state.freezes===undefined)  state.freezes = 2;         // 连胜保护数（漏一天自动补）
 if(!Array.isArray(state.doneDays)) state.doneDays = [];   // 完成过的日期（画打卡条用）
+// 一次性修复：早期 focus 会把整个类目塞进 introduced 却从没练，涌入主线。移除从未打分(hist空)的引入项
+if(!state.migFocusFix){
+  state.introduced = (state.introduced||[]).filter(id => state.sc[id] && state.sc[id].hist && state.sc[id].hist.length>0);
+  state.session = null; state.newCount = 0; state.migFocusFix = 1;
+  save();
+}
 
 function scState(id){
   if(!state.sc[id]) state.sc[id] = {box:1, due:today(), hist:[]};
@@ -336,12 +342,11 @@ function startSession(){
 // 主题集中练习：为近期真实目标（如面试）针对性密集练一个类目，不受每日封顶限制；SRS 照常记
 function startFocus(cat){
   focusCat = cat;
-  const ids = SCENARIOS.filter(s=>(s.cat||'Other')===cat).map(s=>s.id);
-  ids.forEach(id=>{ if(!state.introduced.includes(id)){ state.introduced.push(id); scState(id); } });
-  queue = [...ids];
+  // 不预先引入整个类目——否则会全部涌入主线每日复习。只在打分时(scoreScenario)引入真正练过的
+  queue = SCENARIOS.filter(s=>(s.cat||'Other')===cat).map(s=>s.id);
   queue2 = shuffle([...queue]);
   pass = 1; qi = 0;
-  if(queue.length===0){ save(); renderHome(); return; }
+  if(queue.length===0){ renderHome(); return; }
   saveSession();
   runStep();
 }
@@ -643,6 +648,7 @@ function speedDone(id){
 function advancePass2(){ qi++; runStep(); }
 function scoreScenario(id, score){
   const st = scState(id);
+  if(!state.introduced.includes(id)) state.introduced.push(id);   // 只有真正练到并打分，才进入 SRS 主线
   st.hist.push({d:today(), lat:curLat, score});
   if(score==='good') st.box = Math.min(4, st.box+1);
   else if(score==='bad') st.box = 1;
