@@ -106,8 +106,8 @@
 </div>
 <div id="sheet" class="sheet hidden" onclick="if(event.target===this)toggleSheet(false)">
   <div class="sheet-card">
-    <div class="big">🔊 Voice</div>
-    <div class="ctx">Switch anytime — even mid-practice. Pick the one that sounds best.</div>
+    <div class="big">🔊 Accent</div>
+    <div class="ctx">Switch anytime — even mid-practice. Australian, British or American.</div>
     <select id="voiceSel2" onchange="setVoice(this.value);testVoice()"
       style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit"></select>
     <div class="row" style="margin-top:10px">
@@ -207,12 +207,23 @@ function rankVoice(v){
   if(/compact|eloquence|novelty|fred|albert|zarvox|trinoids|whisper|bells|bad|cellos|organ|bahh|boing|jester|superstar/i.test(n)) s-=200;
   return s;
 }
+function voiceLabel(v){
+  return /en-AU/i.test(v.lang)?'🇦🇺 Australian':/en-GB/i.test(v.lang)?'🇬🇧 British':/en-US/i.test(v.lang)?'🇺🇸 American':(v.lang||'English');
+}
 function voiceOptions(){
-  return enVoices.map(v=>`<option value="${v.voiceURI}" ${v===enVoice?'selected':''}>${v.name} · ${v.lang}${/enhanced|premium|siri/i.test(v.name)?' ⭐':''}</option>`).join('');
+  return enVoices.map(v=>`<option value="${v.voiceURI}" ${v===enVoice?'selected':''}>${voiceLabel(v)}</option>`).join('');
 }
 function refreshVoices(){
   if(!('speechSynthesis' in window)) return;
-  enVoices = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).sort((a,b)=>rankVoice(b)-rankVoice(a));
+  const all = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  // 只保留 澳/英/美 各一个评分最高的正常人声（排除 novelty/compact 等怪音色）
+  const best=[];
+  [/en-AU/i,/en-GB/i,/en-US/i].forEach(rx=>{
+    const v = all.filter(x=>rx.test(x.lang)).sort((a,b)=>rankVoice(b)-rankVoice(a))[0];
+    if(v && rankVoice(v) > -50) best.push(v);
+  });
+  if(best.length===0 && all.length) best.push(all.slice().sort((a,b)=>rankVoice(b)-rankVoice(a))[0]);   // 回退
+  enVoices = best;
   const saved = localStorage.getItem(VOICE_KEY);
   enVoice = enVoices.find(v=>v.voiceURI===saved) || enVoices[0] || null;
   zhVoice = speechSynthesis.getVoices().find(v=>/^zh/i.test(v.lang)) || null;
@@ -255,8 +266,8 @@ function speak(text, rate=0.97, voice){
 }
 function voiceCardHTML(){
   return `<div class="card">
-    <div class="big">🔊 Voice</div>
-    <div class="ctx">Pick the voice that sounds best. You can also change it anytime from the 🔊 button up top.</div>
+    <div class="big">🔊 Accent</div>
+    <div class="ctx">Choose the accent you want to practise with. Change it anytime from the 🔊 button up top.</div>
     <select id="voiceSel" onchange="setVoice(this.value);testVoice()"
       style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit">
       ${voiceOptions()}
