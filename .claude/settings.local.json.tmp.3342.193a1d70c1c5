@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/<script>/{f=1;next} /<\\\\/script>/{f=0} f' index.html)",
+      "Bash(node --check /private/tmp/claude-501/-Users-xiehai-project-first-line-english/8ae5379f-5b9c-47ec-868e-6887bd1301d6/scratchpad/app.js)",
+      "Bash(python3 -m http.server 8123)",
+      "Bash(curl -s -o /dev/null -w \"server up: HTTP %{http_code}\\\\n\" http://localhost:8123/index.html)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8123/index.html)",
+      "Bash(awk 'NR%600==0' sentences.txt)",
+      "Bash(python3 /private/tmp/claude-501/-Users-xiehai-project-first-line-english/8ae5379f-5b9c-47ec-868e-6887bd1301d6/scratchpad/analyze.py)",
+      "Bash(python3 *)",
+      "Bash(curl -s -o /dev/null -w \"scenarios.json: HTTP %{http_code}\\\\n\" http://localhost:8123/scenarios.json)",
+      "Bash(curl -s -o /dev/null -w \"index.html:    HTTP %{http_code}\\\\n\" http://localhost:8123/index.html)",
+      "Bash(awk '/<script>/{f=1;next} /<\\\\/script>/{f=0} f' deploy/index.html)",
+      "Bash(node --check deploy/sw.js)",
+      "Bash(open \"https://app.netlify.com/drop\")",
+      "Bash(open /Users/xiehai/project/first_line_english/deploy)",
+      "Bash(cat)",
+      "Bash(awk '/^\\\\/\\\\/ 单元自身的延迟迷你曲线/{f=1} f&&/^function renderProgress/{exit} f' /Users/xiehai/project/first_line_english/index.html)",
+      "Bash(node -e ' *)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(gh auth *)",
+      "Read(//Users/xiehai/.ssh/**)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=6 -T git@github.com)",
+      "Bash(gh repo *)",
+      "Bash(git push *)",
+      "Bash(git commit *)",
+      "Bash(sed -i '' \"s/const V = 'fle-v2';/const V = 'fle-v3';/\" sw.js)",
+      "Bash(node --check /tmp/app.js)",
+      "Bash(awk \"/<script>/{f=1;next} /<\\\\/script>/{f=0} f\" index.html)",
+      "Bash(sed -i '' \"s/const V = 'fle-v3';/const V = 'fle-v4';/\" sw.js)",
+      "Bash(sed -i '' \"s/Build v0819c/Build v0819d/\" index.html)"
+    ]
+  }
+}

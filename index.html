@@ -201,10 +201,11 @@ function markStreakDone(){
 let enVoice = null, enVoices = [], zhVoice = null;
 const VOICE_KEY = 'fle_voice';
 function rankVoice(v){
-  const n = (v.name||'')+' '+(v.voiceURI||''); let s=0;
-  if(/enhanced|premium|neural|siri/i.test(n)) s+=100;
+  const name = v.name||'', full = name+' '+(v.voiceURI||''); let s=0;
+  if(/enhanced|premium|neural|siri/i.test(full)) s+=100;   // 音质加分可看内部标识
   if(/en-AU/i.test(v.lang)) s+=8; else if(/en-GB/i.test(v.lang)) s+=6; else if(/en-US/i.test(v.lang)) s+=4;
-  if(/compact|eloquence|novelty|fred|albert|zarvox|trinoids|whisper|bells|bad|cellos|organ|bahh|boing|jester|superstar/i.test(n)) s-=200;
+  // 只把真正的玩具音按“名字”排除（不看 voiceURI —— 那里的 compact 只是标准版，会误杀 Karen 等正常声）
+  if(/novelty|zarvox|trinoids|whisper|bells|bahh|boing|jester|superstar|wobble|bubbles|organ|cellos|albert|fred|bad news|good news|deranged|hysterical/i.test(name)) s-=200;
   return s;
 }
 function accFlag(v){ return /en-AU/i.test(v.lang)?'🇦🇺':/en-GB/i.test(v.lang)?'🇬🇧':/en-US/i.test(v.lang)?'🇺🇸':/en-IE/i.test(v.lang)?'🇮🇪':/en-IN/i.test(v.lang)?'🇮🇳':'🌐'; }
@@ -276,7 +277,7 @@ function voiceCardHTML(){
       ${voiceOptions()}
     </select>
     <button class="btn btn-ghost" style="margin-top:10px" onclick="testVoice()">🔊 Test</button>
-    <div class="hint" style="margin-top:10px;word-break:break-word">Build v0819c · detected: ${(('speechSynthesis' in window)?speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).map(v=>v.name).join(', '):'')||'(none yet — reopen in a second)'}</div>
+    <div class="hint" style="margin-top:10px;word-break:break-word">Build v0819d · detected: ${(('speechSynthesis' in window)?speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).map(v=>v.name).join(', '):'')||'(none yet — reopen in a second)'}</div>
   </div>`;
 }
 
