@@ -750,10 +750,41 @@ function renderProgress(){
     }).join('') || '<div class="muted" style="font-size:13px">Not started yet.</div>'}
   </div>
   <div class="card">
+    <div class="big">Backup &amp; restore</div>
+    <div class="ctx">Your progress lives only on this device. Moving to a new phone, browser, or a future version? <b>Export</b> here, save the text somewhere (a note to yourself), then <b>Import</b> it on the other device to carry everything over.</div>
+    <textarea id="backupBox" placeholder="Your backup text appears here after Export — or paste a backup here, then tap Import." style="width:100%;height:78px;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px;font-family:monospace;resize:vertical"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn btn-primary" onclick="exportData()">⬇ Export</button>
+      <button class="btn btn-ghost" onclick="importData()">⬆ Import</button>
+    </div>
+  </div>
+  <div class="card">
     <div class="big">Reset</div>
     <div class="ctx">Wipe all progress and start over.</div>
     <button class="btn btn-ghost" onclick="if(confirm('Wipe all progress?')){localStorage.removeItem('${LS}');location.reload();}">Reset progress</button>
   </div>`;
+}
+// 导出/导入进度：把本机所有 fle_ 数据打包成文本，换设备/换网址/换版本时手动迁移（无需后端）
+function exportData(){
+  const dump={};
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.indexOf('fle_')===0) dump[k]=localStorage.getItem(k); }
+  const txt=JSON.stringify({app:'firstline', v:1, data:dump});
+  const box=document.getElementById('backupBox'); if(box){ box.value=txt; box.focus(); box.select(); }
+  let copied=false;
+  try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); copied=true; } }catch(e){}
+  alert(copied ? 'Backup copied to clipboard. Paste it somewhere safe (e.g. a note), then Import it on your other device.'
+              : 'Backup ready in the box above. Long-press to select all and copy it, then save it somewhere safe.');
+}
+function importData(){
+  const box=document.getElementById('backupBox'); if(!box) return;
+  let obj; try{ obj=JSON.parse((box.value||'').trim()); }catch(e){ alert('That text is not a valid backup. Paste the full text you exported.'); return; }
+  const data = (obj && obj.data) ? obj.data : obj;   // 兼容直接粘 data 对象
+  if(!data || typeof data!=='object' || !data[LS]){ alert('No saved progress found in that text.'); return; }
+  if(!confirm('This will REPLACE all progress on this device with the backup. Continue?')) return;
+  try{ Object.keys(data).forEach(k=>{ if(k.indexOf('fle_')===0) localStorage.setItem(k, data[k]); }); }
+  catch(e){ alert('Import failed while saving. Try again.'); return; }
+  alert('Progress restored. Reloading…');
+  location.reload();
 }
 // 首次使用引导（3 屏，只第一次弹；首页可重看）
 const ONBOARD = [
