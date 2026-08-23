@@ -217,13 +217,18 @@ function voiceLabel(v){
 function voiceOptions(){
   return enVoices.map(v=>`<option value="${v.voiceURI}" ${v===enVoice?'selected':''}>${voiceLabel(v)}</option>`).join('');
 }
+const VOICE_ALLOW = ['Karen','Nathan','Samantha','Stephanie','Jamie'];   // 精选这5个；同名优先增强版
 function refreshVoices(){
   if(!('speechSynthesis' in window)) return;
-  // 保留设备上所有正常英文人声（排除 novelty/compact 怪音），按口音分组、质量排序，带名字让用户自己挑
-  enVoices = speechSynthesis.getVoices()
-    .filter(v=>/^en/i.test(v.lang))
-    .filter(v=>rankVoice(v) > -50)
-    .sort((a,b)=> (accOrder(a)-accOrder(b)) || (rankVoice(b)-rankVoice(a)) || (a.name||'').localeCompare(b.name||''));
+  const all = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  let picked=[];
+  VOICE_ALLOW.forEach(nm=>{
+    const c = all.filter(v=>new RegExp('(^|\\W)'+nm+'(\\W|$)','i').test(v.name||''))
+                 .sort((a,b)=>rankVoice(b)-rankVoice(a));   // 同名(普通/增强)里取音质最好的
+    if(c[0]) picked.push(c[0]);
+  });
+  if(picked.length===0) picked = all.filter(v=>rankVoice(v) > -50);   // 设备没有这些名字(如安卓)→回退到所有正常声
+  enVoices = picked.sort((a,b)=> (accOrder(a)-accOrder(b)) || (rankVoice(b)-rankVoice(a)));
   const saved = localStorage.getItem(VOICE_KEY);
   enVoice = enVoices.find(v=>v.voiceURI===saved) || enVoices[0] || null;
   zhVoice = speechSynthesis.getVoices().find(v=>/^zh/i.test(v.lang)) || null;
@@ -277,7 +282,6 @@ function voiceCardHTML(){
       ${voiceOptions()}
     </select>
     <button class="btn btn-ghost" style="margin-top:10px" onclick="testVoice()">🔊 Test</button>
-    <div class="hint" style="margin-top:10px;word-break:break-word">Build v0819d · detected: ${(('speechSynthesis' in window)?speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).map(v=>v.name).join(', '):'')||'(none yet — reopen in a second)'}</div>
   </div>`;
 }
 
