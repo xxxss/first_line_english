@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// 用 ElevenLabs 把所有场景的句子生成澳音 mp3，存到 audio/，并写 audio/manifest.json
+// 用 ElevenLabs 生成场景音频到 audio/，写 audio/manifest.json (text→mp3)。支持双音色：
+//   对话(opening)+标准句(target) 用 ELEVEN_VOICE_ID；场景旁白(setup) 用 ELEVEN_VOICE_NARR。
+// 增量：文件已存在且用的是同一个声音就跳过；换了声音会只重生成受影响的句子。
 // 用法：
-//   1) 列出你账号里的声音，挑一个澳洲口音，复制它的 voice id：
-//        ELEVENLABS_API_KEY=xxx node generate-audio.mjs --list
-//   2) 生成（增量：已生成的会跳过，加了新场景重跑只生成新的）：
-//        ELEVENLABS_API_KEY=xxx ELEVEN_VOICE_ID=你选的澳音id node generate-audio.mjs
+//   列声音： ELEVENLABS_API_KEY=xxx node generate-audio.mjs --list
+//   生成：   ELEVENLABS_API_KEY=xxx ELEVEN_VOICE_ID=对话音id ELEVEN_VOICE_NARR=旁白音id node generate-audio.mjs
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
-const VOICE_ID = process.env.ELEVEN_VOICE_ID;
+const VOICE_MAIN = process.env.ELEVEN_VOICE_ID;                     // 对话 + 标准句
+const VOICE_NARR = process.env.ELEVEN_VOICE_NARR || VOICE_MAIN;     // 场景旁白
 const MODEL = process.env.ELEVEN_MODEL || 'eleven_multilingual_v2';
-const AUDIO_DIR = 'audio';
-
-if (!KEY) { console.error('缺少 ELEVENLABS_API_KEY 环境变量'); process.exit(1); }
+const DIR = 'audio';
+if (!KEY) { console.error('缺少 ELEVENLABS_API_KEY'); process.exit(1); }
 
 const fname = t => crypto.createHash('md5').update(t).digest('hex').slice(0, 12) + '.mp3';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -21,30 +21,28 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function listVoices() {
   const r = await fetch('https://api.elevenlabs.io/v1/voices', { headers: { 'xi-api-key': KEY } });
   const j = await r.json();
-  console.log('\n可用声音（★ = 澳洲口音，挑一个把它的 id 填给 ELEVEN_VOICE_ID）：\n');
+  console.log('\n账号里的声音（★=澳音）：\n');
   for (const v of j.voices || []) {
     const acc = (v.labels && (v.labels.accent || v.labels.description)) || '';
-    const au = /austral/i.test(acc) ? '★ ' : '  ';
-    console.log(`${au}${v.name.padEnd(18)} ${v.voice_id}   ${acc}`);
+    console.log(`${/austral/i.test(acc) ? '★ ' : '  '}${v.name.padEnd(20)} ${v.voice_id}  ${acc}`);
   }
-  console.log('\n若列表里没有澳音，去 elevenlabs.io 的 Voice Library 加一个澳洲口音的声音到你的账号，再重跑 --list。');
 }
 
-function collectTexts() {
+function collectItems() {
   const scn = JSON.parse(fs.readFileSync('scenarios.json', 'utf8'));
-  const set = new Set();
-  set.add('Hi there! What can I get you today?');           // testVoice 示例句
+  const arr = [{ text: 'Hi there! What can I get you today?', voice: VOICE_MAIN }];
   for (const s of scn) {
-    if (s.opening) set.add(s.opening);                       // 对方开场白
-    if (s.target) set.add(s.target);                         // 标准主练句
-    const narr = (s.setup || s.ctx || '') + (s.goal ? '. ' + s.goal : '');  // 场景旁白(和 app 里 narrateScene 拼法一致)
-    if (narr.trim()) set.add(narr);
+    if (s.opening) arr.push({ text: s.opening, voice: VOICE_MAIN });
+    if (s.target) arr.push({ text: s.target, voice: VOICE_MAIN });
+    const narr = (s.setup || s.ctx || '') + (s.goal ? '. ' + s.goal : '');   // 和 app 里 narrateScene 拼法一致
+    if (narr.trim()) arr.push({ text: narr, voice: VOICE_NARR });
   }
-  return [...set];
+  const seen = new Set();
+  return arr.filter(o => seen.has(o.text) ? false : (seen.add(o.text), true));  // 去重
 }
 
-async function tts(text) {
-  const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+async function tts(text, voice) {
+  const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
     method: 'POST',
     headers: { 'xi-api-key': KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
     body: JSON.stringify({ text, model_id: MODEL, voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
@@ -55,36 +53,36 @@ async function tts(text) {
 
 async function main() {
   if (process.argv.includes('--list')) return listVoices();
-  if (!VOICE_ID) { console.error('缺少 ELEVEN_VOICE_ID（先用 --list 挑一个澳音）'); process.exit(1); }
+  if (!VOICE_MAIN) { console.error('缺少 ELEVEN_VOICE_ID'); process.exit(1); }
 
-  const texts = collectTexts();
-  const chars = texts.reduce((a, t) => a + t.length, 0);
-  console.log(`共 ${texts.length} 句、约 ${chars} 字符要生成（ElevenLabs 按字符计费，注意额度）。`);
+  fs.mkdirSync(DIR, { recursive: true });
+  const load = f => fs.existsSync(`${DIR}/${f}`) ? JSON.parse(fs.readFileSync(`${DIR}/${f}`, 'utf8')) : {};
+  const manifest = load('manifest.json');
+  let built = load('.built.json');   // text -> 生成时用的 voice id
+  // 老的 audio 没有 .built 记录：视为都用 VOICE_MAIN 生成的（这样换旁白音只会重生成旁白）
+  if (Object.keys(built).length === 0) for (const t of Object.keys(manifest)) built[t] = VOICE_MAIN;
 
-  fs.mkdirSync(AUDIO_DIR, { recursive: true });
-  const manifest = fs.existsSync(`${AUDIO_DIR}/manifest.json`)
-    ? JSON.parse(fs.readFileSync(`${AUDIO_DIR}/manifest.json`, 'utf8')) : {};
+  const items = collectItems();
+  const todo = items.filter(o => !(fs.existsSync(`${DIR}/${fname(o.text)}`) && built[o.text] === o.voice));
+  console.log(`共 ${items.length} 句，需(重)生成 ${todo.length} 句、约 ${todo.reduce((a, o) => a + o.text.length, 0)} 字符。`);
 
-  let made = 0, skipped = 0, i = 0;
-  for (const t of texts) {
-    i++;
-    const f = fname(t);
-    if (fs.existsSync(`${AUDIO_DIR}/${f}`)) { manifest[t] = f; skipped++; continue; }   // 增量：已有就跳过
+  let made = 0;
+  for (const { text, voice } of items) {
+    const f = fname(text);
+    if (fs.existsSync(`${DIR}/${f}`) && built[text] === voice) { manifest[text] = f; continue; }
     try {
-      const buf = await tts(t);
-      fs.writeFileSync(`${AUDIO_DIR}/${f}`, buf);
-      manifest[t] = f; made++;
-      process.stdout.write(`\r生成中 ${i}/${texts.length}（新 ${made}，跳过 ${skipped}）`);
-      fs.writeFileSync(`${AUDIO_DIR}/manifest.json`, JSON.stringify(manifest));   // 边生成边存，中断可续
-      await sleep(250);   // 轻微限速，避免触发速率限制
+      fs.writeFileSync(`${DIR}/${f}`, await tts(text, voice));
+      manifest[text] = f; built[text] = voice; made++;
+      process.stdout.write(`\r生成中 ${made}/${todo.length}`);
+      fs.writeFileSync(`${DIR}/manifest.json`, JSON.stringify(manifest));
+      fs.writeFileSync(`${DIR}/.built.json`, JSON.stringify(built));
+      await sleep(250);
     } catch (e) {
-      console.error(`\n生成失败："${t.slice(0, 40)}…" → ${e.message}`);
-      console.error('已生成的已保存，可稍后重跑续上。'); process.exit(1);
+      console.error(`\n失败："${text.slice(0, 40)}…" → ${e.message}\n已生成的已保存，可重跑续上。`); process.exit(1);
     }
   }
-  fs.writeFileSync(`${AUDIO_DIR}/manifest.json`, JSON.stringify(manifest));
-  console.log(`\n完成：新生成 ${made}，跳过 ${skipped}。音频在 ${AUDIO_DIR}/，清单 ${AUDIO_DIR}/manifest.json。`);
-  console.log('接着：git add audio && git commit && git push，Netlify 部署后所有设备就都有澳音了。');
+  fs.writeFileSync(`${DIR}/manifest.json`, JSON.stringify(manifest));
+  fs.writeFileSync(`${DIR}/.built.json`, JSON.stringify(built));
+  console.log(`\n完成：(重)生成 ${made} 句。git add audio && commit && push 即可上线。`);
 }
-
 main();
