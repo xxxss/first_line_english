@@ -276,10 +276,10 @@ function speak(text, rate=0.97, voice){
 function voiceCardHTML(){
   return `<div class="card">
     <div class="big">🔊 Accent</div>
-    <div class="ctx">Choose the accent you want to practise with. Change it anytime from the 🔊 button up top.</div>
+    <div class="ctx">Choose the accent to practise with — change it anytime from the 🔊 up top.${enVoices.length?'':' <b>No voice found on this browser.</b> On Android, open this app in <b>Chrome</b> with internet on. (Built-in audio for every device is on the way.)'}</div>
     <select id="voiceSel" onchange="setVoice(this.value);testVoice()"
       style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit">
-      ${voiceOptions()}
+      ${enVoices.length?voiceOptions():'<option value="">(no voice found — try Chrome)</option>'}
     </select>
     <button class="btn btn-ghost" style="margin-top:10px" onclick="testVoice()">🔊 Test</button>
   </div>`;
