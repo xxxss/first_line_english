@@ -8,3 +8,6 @@ sentences.txt
 .vscode/
 .idea/
 *.swp
+
+# 试听样本，不进库
+samples/
