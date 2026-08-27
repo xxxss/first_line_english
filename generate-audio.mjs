@@ -9,8 +9,9 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
-const VOICE_MAIN = process.env.ELEVEN_VOICE_ID;                     // 对话 + 标准句
-const VOICE_NARR = process.env.ELEVEN_VOICE_NARR || VOICE_MAIN;     // 场景旁白
+const VOICE_MAIN = process.env.ELEVEN_VOICE_ID;                     // 对话(opening) + testVoice
+const VOICE_NARR = process.env.ELEVEN_VOICE_NARR || VOICE_MAIN;     // 场景旁白(叙述)
+const VOICE_TGT  = process.env.ELEVEN_VOICE_TARGET || VOICE_MAIN;   // 标准跟读句(慢、清晰)
 const MODEL = process.env.ELEVEN_MODEL || 'eleven_multilingual_v2';
 const DIR = 'audio';
 if (!KEY) { console.error('缺少 ELEVENLABS_API_KEY'); process.exit(1); }
@@ -33,7 +34,7 @@ function collectItems() {
   const arr = [{ text: 'Hi there! What can I get you today?', voice: VOICE_MAIN }];
   for (const s of scn) {
     if (s.opening) arr.push({ text: s.opening, voice: VOICE_MAIN });
-    if (s.target) arr.push({ text: s.target, voice: VOICE_MAIN });
+    if (s.target) arr.push({ text: s.target, voice: VOICE_TGT });
     const narr = (s.setup || s.ctx || '') + (s.goal ? '. ' + s.goal : '');   // 和 app 里 narrateScene 拼法一致
     if (narr.trim()) arr.push({ text: narr, voice: VOICE_NARR });
   }
