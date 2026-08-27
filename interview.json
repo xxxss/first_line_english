@@ -1,0 +1,103 @@
+[
+ {
+  "id": 1,
+  "q": "Tell me about yourself.",
+  "strategy": "Present focus → relevant experience → useful strengths → interest in the role",
+  "patterns": [
+   "I am currently looking for ___",
+   "I have experience in ___",
+   "In my previous role, course or placement, ___",
+   "One skill I can bring to this role is ___",
+   "I would describe myself as ___",
+   "I am interested in this position because ___"
+  ]
+ },
+ {
+  "id": 2,
+  "q": "Why should we hire you?",
+  "strategy": "Job requirement → matching strength → evidence → contribution",
+  "patterns": [
+   "You are looking for someone who can ___",
+   "One skill I can offer is ___",
+   "For example, ___",
+   "This would help me contribute by ___"
+  ]
+ },
+ {
+  "id": 3,
+  "q": "Why do you want to work here?",
+  "strategy": "Specific company feature → personal connection → possible contribution",
+  "patterns": [
+   "I am interested in working here because ___",
+   "This appeals to me because ___",
+   "I believe I could contribute by ___"
+  ]
+ },
+ {
+  "id": 4,
+  "q": "What do you know about the company?",
+  "strategy": "Researched fact → meaning → connection to the position",
+  "prep": [
+   "Products or services — what does the company provide?",
+   "Customers or community — who does it support?",
+   "Values and culture — what matters to the organisation?",
+   "Recent priority — what project, change or priority did you find?",
+   "Role connection — which fact is most relevant to this position?"
+  ],
+  "patterns": [
+   "I know that the company ___",
+   "This stood out to me because ___",
+   "It's relevant to this role because ___"
+  ]
+ },
+ {
+  "id": 5,
+  "q": "What are your strengths?",
+  "strategy": "Name the skill → give evidence → connect it to the job",
+  "patterns": [
+   "One skill I can bring to this role is ___",
+   "A good example of this is ___",
+   "One situation that demonstrates this was ___",
+   "I demonstrated this by ___",
+   "This experience would help me in this role because ___",
+   "I believe this matches your requirement for ___"
+  ]
+ },
+ {
+  "id": 6,
+  "q": "What is one area you are improving?",
+  "strategy": "Genuine area → improvement action → progress",
+  "patterns": [
+   "One area I am improving is ___",
+   "I am working on this by ___",
+   "To develop this skill, I have been ___",
+   "I have already noticed that ___",
+   "My next step is to ___"
+  ]
+ },
+ {
+  "id": 7,
+  "q": "Tell me about a time you worked in a team and solved a problem.",
+  "strategy": "Situation → Task → Action → Result (STAR)",
+  "patterns": [
+   "One situation that demonstrates this was ___  (situation)",
+   "The team needed to ___  (task)",
+   "My responsibility was to ___  (task)",
+   "I decided to ___  (action)",
+   "The steps I took were ___  (action)",
+   "I worked with ___ to ___  (action)",
+   "As a result, ___  (result)"
+  ]
+ },
+ {
+  "id": 8,
+  "q": "Do you have any questions for us?",
+  "strategy": "Ask something that shows genuine interest in the role",
+  "patterns": [
+   "Could you tell me more about ___?",
+   "What would success look like in this role?",
+   "What are the main priorities for the first few months?",
+   "What are the next steps in the process?"
+  ]
+ }
+]

@@ -125,7 +125,7 @@
 <script>
 "use strict";
 //////////////////// scenario data (loaded from scenarios.json) ////////////////////
-let SCENARIOS = [];
+let SCENARIOS = [], INTERVIEW = [];
 const NEW_CAP = 6;                       // max brand-new scenarios per day (new items are the heaviest)
 const DEFAULT_GOAL = 12;                 // default daily total (reviews + new); user-adjustable
 const BOX_DAYS = {1:1, 2:2, 3:4, 4:7};  // Leitner intervals (days)
@@ -510,6 +510,11 @@ function renderHome(){
       ${[8,12,16,20].map(n=>`<button class="btn ${n===dailyGoal()?'btn-primary':'btn-ghost'}" style="padding:11px 4px" onclick="setGoal(${n})">${n}<br><span style="font-weight:400;font-size:11px;opacity:.8">~${Math.round(n*1.6)} min</span></button>`).join('')}
     </div>
   </div>`;
+  if(INTERVIEW.length) html += `<div class="card">
+    <div class="big">🎤 Interview prep</div>
+    <div class="ctx">Practise structured answers to common interview questions — use the framework, put in your own experience, and say a full answer.</div>
+    <button class="btn btn-primary" onclick="renderInterviewList()">Open interview prep →</button>
+  </div>`;
   const cats=[...new Set(SCENARIOS.map(s=>s.cat||'Other'))];
   html += `<div class="card"><div class="big">All scenarios (${SCENARIOS.length})</div>
     <div class="ctx" style="margin-top:2px">Tap <b>Focus</b> on a topic to drill it intensively — great when you have a real goal coming up (an interview, a trip). It doesn't use up your daily goal.</div>` +
@@ -830,6 +835,39 @@ function renderOnboarding(i){
   </div>`;
 }
 function finishOnboarding(){ localStorage.setItem(ONBOARD_KEY,'1'); renderHome(); }
+// 面试框架练习（结构化长回答，独立于单句 SRS）
+function renderInterviewList(){
+  stopSpeak();
+  let h=`<div class="card"><div class="big">🎤 Interview prep</div>
+    <div class="ctx">Pick a question. You'll get the answer structure + sentence frames — then say a full answer in your own words.</div>`;
+  INTERVIEW.forEach((it,i)=>{ h+=`<div class="list-item" style="cursor:pointer" onclick="renderInterviewQ(${i})">
+    <div class="num">${i+1}</div><div style="flex:1;font-weight:600">${it.q}</div><div class="muted">›</div></div>`; });
+  h+=`</div><button class="btn btn-ghost" onclick="renderHome()">← Back</button>`;
+  view().innerHTML=h;
+}
+let ivHide=false;
+function ivQHtml(i){
+  const it=INTERVIEW[i];
+  return `<div class="card">
+    <div class="pill">Interview · ${i+1}/${INTERVIEW.length}</div>
+    <div class="line-en" style="margin:12px 0 4px">${it.q}
+      <button class="btn btn-ghost" style="display:inline-block;width:auto;padding:4px 10px;font-size:13px;margin-left:6px" onclick="speak(INTERVIEW[${i}].q)">🔊</button></div>
+    ${ivHide ? `<div class="ctx" style="margin-top:8px">Framework hidden — answer the question out loud, from memory, in your own words.</div>`
+      : `${it.strategy?`<div class="goal" style="margin-top:8px">🧭 ${it.strategy}</div>`:''}
+         ${it.prep?`<div class="ctx" style="margin-top:8px"><b>Before you answer, know:</b><br>${it.prep.map(p=>'• '+p).join('<br>')}</div>`:''}
+         <div class="said" style="margin-top:10px">Sentence frames — fill in your own:</div>
+         ${it.patterns.map(p=>`<div style="font-size:16px;line-height:1.5;margin:4px 0;color:var(--brand)">${p}</div>`).join('')}`}
+    <div class="hint" style="margin-top:12px">Follow the structure, put in your <b>real</b> experience, and say a <b>full answer out loud</b>.</div>
+    <button class="btn btn-primary" style="margin-top:10px" onclick="ivToggle(${i})">${ivHide?'Show framework':'Hide framework — say it from memory'}</button>
+    <div class="row" style="margin-top:8px">
+      ${i>0?`<button class="btn btn-ghost" onclick="renderInterviewQ(${i-1})">← Prev</button>`:''}
+      <button class="btn btn-ghost" onclick="renderInterviewList()">List</button>
+      ${i<INTERVIEW.length-1?`<button class="btn btn-ghost" onclick="renderInterviewQ(${i+1})">Next →</button>`:''}
+    </div>
+  </div>`;
+}
+function renderInterviewQ(i){ stopSpeak(); ivHide=false; view().innerHTML=ivQHtml(i); speak(INTERVIEW[i].q); }
+function ivToggle(i){ ivHide=!ivHide; view().innerHTML=ivQHtml(i); }
 function setTab(t){ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active', el.dataset.tab===t)); }
 document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{
   stopListen(); stopSpeak();
@@ -846,6 +884,7 @@ async function boot(){
       `<div class="card">Failed to load scenarios.json — make sure it's in the same folder and opened over http (localhost), not via file://.</div>`;
     return;
   }
+  try{ INTERVIEW = await (await fetch('interview.json', {cache:'no-store'})).json(); }catch(e){ INTERVIEW = []; }
   try{ audioMap = await (await fetch('audio/manifest.json', {cache:'no-store'})).json(); }catch(e){ audioMap = null; }   // 有预生成音频就用，没有就回退设备语音
   // 清理已删除/改动场景留下的孤儿引用，防止崩
   const valid = new Set(SCENARIOS.map(s=>s.id));
