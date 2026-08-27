@@ -1,5 +1,5 @@
 // 网络优先 + 离线回退：联网时永远最新，断网时用缓存
-const V = 'fle-v7';
+const V = 'fle-v8';
 const ASSETS = ['./', './index.html', './scenarios.json', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

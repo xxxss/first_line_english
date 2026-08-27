@@ -259,19 +259,40 @@ if('speechSynthesis' in window){
   // iOS/PWA 有时延迟填充 voices 且不触发 voiceschanged —— 重试几次确保拿全（否则可能只有一个默认声）
   [400,1200,3000].forEach(ms=>setTimeout(refreshVoices, ms));
 }
+let audioMap = null, curAudio = null;   // 预生成音频清单 + 当前播放的 audio
+function stopSpeak(){
+  try{ if(curAudio){ curAudio.pause(); curAudio=null; } }catch(e){}
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+}
+// 优先播预生成的真人音频(所有设备统一，含安卓)；没有则回退到设备 Web Speech
 function speak(text, rate=0.97, voice){
   return new Promise(res=>{
-    if(!('speechSynthesis' in window) || !text){ setTimeout(res,150); return; }
-    speechSynthesis.cancel();
-    const v = voice || enVoice;
-    const u = new SpeechSynthesisUtterance(text);
-    if(v) u.voice = v; u.lang = v?v.lang:'en-US'; u.rate = rate; u.pitch = 1;
-    let done=false; const finish=()=>{ if(done) return; done=true; res(); };
-    u.onend = finish; u.onerror = finish;
-    // 安全兜底：部分浏览器对某些句子不触发 onend，会卡在读完这步 → 按字数估算最长时长后强制继续
-    setTimeout(finish, Math.min(12000, 1200 + text.length*90));
-    speechSynthesis.speak(u);
+    stopSpeak();
+    if(!text){ setTimeout(res,120); return; }
+    const file = audioMap && audioMap[text];
+    if(file){
+      const a = new Audio('audio/'+file); curAudio=a;
+      a.playbackRate = rate>1.1 ? 1.3 : 1;   // fast 场景把音频加速
+      let done=false; const fin=()=>{ if(done)return; done=true; if(curAudio===a)curAudio=null; res(); };
+      a.onended=fin;
+      a.onerror=()=>{ if(done)return; done=true; if(curAudio===a)curAudio=null; webSpeak(text,rate,voice,res); };
+      a.play().then(()=>{},()=>{ if(!done){ done=true; if(curAudio===a)curAudio=null; webSpeak(text,rate,voice,res);} });
+      setTimeout(fin, 15000);
+      return;
+    }
+    webSpeak(text, rate, voice, res);
   });
+}
+function webSpeak(text, rate, voice, res){
+  if(!('speechSynthesis' in window)){ setTimeout(res,120); return; }
+  speechSynthesis.cancel();
+  const v = voice || enVoice;
+  const u = new SpeechSynthesisUtterance(text);
+  if(v) u.voice = v; u.lang = v?v.lang:'en-US'; u.rate = rate; u.pitch = 1;
+  let done=false; const finish=()=>{ if(done) return; done=true; res(); };
+  u.onend = finish; u.onerror = finish;
+  setTimeout(finish, Math.min(12000, 1200 + text.length*90));   // onend 不触发时的兜底
+  speechSynthesis.speak(u);
 }
 function voiceCardHTML(){
   return `<div class="card">
@@ -550,7 +571,7 @@ function startCue(id){
 function retryListen(id){ const s=SCENARIOS.find(x=>x.id===id);
   stopListen(); curLat=null; document.getElementById('latBox').innerHTML=''; playAndListen(s); }
 // 随时退出回首页（进度已逐题保存；focus 可只练一部分就走）
-function exitPractice(){ stopListen(); if('speechSynthesis' in window) speechSynthesis.cancel(); renderHome(); }
+function exitPractice(){ stopListen(); stopSpeak(); renderHome(); }
 
 let drillCount=0;
 // Step 1 — Shadowing: play the model and speak ALONG with it, copying rhythm & melody, ×3
@@ -811,7 +832,7 @@ function renderOnboarding(i){
 function finishOnboarding(){ localStorage.setItem(ONBOARD_KEY,'1'); renderHome(); }
 function setTab(t){ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active', el.dataset.tab===t)); }
 document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{
-  stopListen(); speechSynthesis&&speechSynthesis.cancel();
+  stopListen(); stopSpeak();
   el.dataset.tab==='home'?renderHome():renderProgress();
 });
 
@@ -825,6 +846,7 @@ async function boot(){
       `<div class="card">Failed to load scenarios.json — make sure it's in the same folder and opened over http (localhost), not via file://.</div>`;
     return;
   }
+  try{ audioMap = await (await fetch('audio/manifest.json', {cache:'no-store'})).json(); }catch(e){ audioMap = null; }   // 有预生成音频就用，没有就回退设备语音
   document.getElementById('dateSub').textContent = fmtDate();
   document.getElementById('streak').textContent = `🔥 ${state.streak||0}`;
   if(!localStorage.getItem(ONBOARD_KEY)) renderOnboarding(0); else renderHome();
