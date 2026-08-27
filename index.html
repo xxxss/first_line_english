@@ -847,6 +847,12 @@ async function boot(){
     return;
   }
   try{ audioMap = await (await fetch('audio/manifest.json', {cache:'no-store'})).json(); }catch(e){ audioMap = null; }   // 有预生成音频就用，没有就回退设备语音
+  // 清理已删除/改动场景留下的孤儿引用，防止崩
+  const valid = new Set(SCENARIOS.map(s=>s.id));
+  const before = (state.introduced||[]).length;
+  state.introduced = (state.introduced||[]).filter(id=>valid.has(id));
+  if(state.session && !((state.session.queue||[]).every(id=>valid.has(id)))) state.session = null;
+  if(state.introduced.length !== before) save();
   document.getElementById('dateSub').textContent = fmtDate();
   document.getElementById('streak').textContent = `🔥 ${state.streak||0}`;
   if(!localStorage.getItem(ONBOARD_KEY)) renderOnboarding(0); else renderHome();
