@@ -295,9 +295,14 @@ function webSpeak(text, rate, voice, res){
   speechSynthesis.speak(u);
 }
 function voiceCardHTML(){
+  if(audioMap) return `<div class="card">
+    <div class="big">🔊 Voice</div>
+    <div class="ctx">Built-in Australian voices are used throughout — a conversational voice for dialogue, a clear voice for the lines you practise, and a narrator for scenes. Nothing to set.</div>
+    <button class="btn btn-ghost" onclick="speak('Hi there! What can I get you today?')">🔊 Test</button>
+  </div>`;
   return `<div class="card">
     <div class="big">🔊 Accent</div>
-    <div class="ctx">Choose the accent to practise with — change it anytime from the 🔊 up top.${enVoices.length?'':' <b>No voice found on this browser.</b> On Android, open this app in <b>Chrome</b> with internet on. (Built-in audio for every device is on the way.)'}</div>
+    <div class="ctx">Choose the accent to practise with — change it anytime from the 🔊 up top.${enVoices.length?'':' <b>No voice found on this browser.</b> On Android, open this app in <b>Chrome</b> with internet on.'}</div>
     <select id="voiceSel" onchange="setVoice(this.value);testVoice()"
       style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit">
       ${enVoices.length?voiceOptions():'<option value="">(no voice found — try Chrome)</option>'}
@@ -886,6 +891,7 @@ async function boot(){
   }
   try{ INTERVIEW = await (await fetch('interview.json', {cache:'no-store'})).json(); }catch(e){ INTERVIEW = []; }
   try{ audioMap = await (await fetch('audio/manifest.json', {cache:'no-store'})).json(); }catch(e){ audioMap = null; }   // 有预生成音频就用，没有就回退设备语音
+  if(audioMap){ const vb=document.getElementById('voiceBtn'); if(vb) vb.style.display='none'; }   // 有内置音频就不需要顶部选口音按钮
   // 清理已删除/改动场景留下的孤儿引用，防止崩
   const valid = new Set(SCENARIOS.map(s=>s.id));
   const before = (state.introduced||[]).length;
