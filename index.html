@@ -259,42 +259,27 @@ if('speechSynthesis' in window){
   // iOS/PWA 有时延迟填充 voices 且不触发 voiceschanged —— 重试几次确保拿全（否则可能只有一个默认声）
   [400,1200,3000].forEach(ms=>setTimeout(refreshVoices, ms));
 }
-let audioMap = null, sfxCtx = null, sfxGain = null, curSrc = null;   // 预生成音频清单 + Web Audio 播放
-const bufCache = {};
+let audioMap = null, curAudio = null;   // 预生成音频清单 + 当前播放的 audio
 function stopSpeak(){
-  try{ if(curSrc){ curSrc.stop(); curSrc = null; } }catch(e){}
+  try{ if(curAudio){ curAudio.pause(); curAudio=null; } }catch(e){}
   if('speechSynthesis' in window) speechSynthesis.cancel();
 }
-// 用 Web Audio 播放（声音被系统当作媒体 → 音量键能调、且绕过 iOS 静音开关）
-function ensureSfx(){
-  if(!sfxCtx){
-    try{ sfxCtx = new (window.AudioContext||window.webkitAudioContext)(); sfxGain = sfxCtx.createGain(); sfxGain.gain.value = 1; sfxGain.connect(sfxCtx.destination); }
-    catch(e){ return false; }
-  }
-  if(sfxCtx.state === 'suspended') sfxCtx.resume().catch(()=>{});
-  return true;
-}
-async function playFile(file, rate){
-  if(!ensureSfx()) throw new Error('no-audioctx');
-  let buf = bufCache[file];
-  if(!buf){ const ab = await (await fetch('audio/'+file)).arrayBuffer(); buf = await sfxCtx.decodeAudioData(ab); bufCache[file] = buf; }
-  await new Promise(res=>{
-    const src = sfxCtx.createBufferSource(); src.buffer = buf;
-    src.playbackRate.value = rate>1.1 ? 1.3 : 1;   // fast 场景加速
-    src.connect(sfxGain); curSrc = src;
-    let done=false; const fin=()=>{ if(done)return; done=true; if(curSrc===src) curSrc=null; res(); };
-    src.onended = fin;
-    src.start(0);
-    setTimeout(fin, (buf.duration/(src.playbackRate.value) + 2) * 1000);   // 兜底
-  });
-}
-// 优先播预生成的真人音频(所有设备统一，含安卓)；没有/失败则回退到设备 Web Speech
+// 用 HTMLAudio 播放（在 iOS 静音开关下仍能出声；代价：音量键调不到它）；没有/失败则回退设备 Web Speech
 function speak(text, rate=0.97, voice){
   return new Promise(res=>{
     stopSpeak();
     if(!text){ setTimeout(res,120); return; }
     const file = audioMap && audioMap[text];
-    if(file){ playFile(file, rate).then(res).catch(()=>webSpeak(text, rate, voice, res)); return; }
+    if(file){
+      const a = new Audio('audio/'+file); curAudio=a;
+      a.playbackRate = rate>1.1 ? 1.3 : 1;   // fast 场景把音频加速
+      let done=false; const fin=()=>{ if(done)return; done=true; if(curAudio===a)curAudio=null; res(); };
+      a.onended=fin;
+      a.onerror=()=>{ if(done)return; done=true; if(curAudio===a)curAudio=null; webSpeak(text,rate,voice,res); };
+      a.play().then(()=>{},()=>{ if(!done){ done=true; if(curAudio===a)curAudio=null; webSpeak(text,rate,voice,res);} });
+      setTimeout(fin, 15000);
+      return;
+    }
     webSpeak(text, rate, voice, res);
   });
 }
