@@ -917,5 +917,85 @@
   "target": "Excuse me, which stop do I get off for the museum?",
   "ctx": "问在哪站下去博物馆——主动开口。",
   "selfStart": true
+ },
+ {
+  "id": 91,
+  "cat": "Small Talk",
+  "name": "Neighbour greets you",
+  "setup": "You pass a neighbour on the street. They greet you cheerfully.",
+  "goal": "Warmly answer and turn it back to them.",
+  "opening": "Morning! Lovely day, isn't it?",
+  "target": "Yeah, gorgeous! How's your morning going?",
+  "ctx": "邻居在路上热情打招呼——回应并反问。"
+ },
+ {
+  "id": 92,
+  "cat": "Small Talk",
+  "name": "Someone admires your dog",
+  "setup": "A stranger stops to admire your dog on your walk.",
+  "goal": "Thank them and ask back.",
+  "opening": "Beautiful dog! How old is she?",
+  "target": "Thanks! She's about three. Do you have one?",
+  "ctx": "有人夸你的狗——道谢并反问。"
+ },
+ {
+  "id": 93,
+  "cat": "Small Talk",
+  "name": "Heading out",
+  "setup": "A neighbour notices you leaving the building.",
+  "goal": "Answer lightly and turn it back.",
+  "opening": "Off to work, are you?",
+  "target": "Yeah, the daily grind! You headed out too?",
+  "ctx": "邻居问你是不是去上班——轻松应答+反问。"
+ },
+ {
+  "id": 94,
+  "cat": "Small Talk",
+  "name": "Keep it going",
+  "setup": "Mid-chat, they mention they've been busy with the kids.",
+  "goal": "Empathise and keep the chat going.",
+  "opening": "Not bad, just been busy with the kids.",
+  "target": "Oh, I bet! They keep you on your toes, don't they?",
+  "ctx": "对方说忙孩子——共情并把话接下去。"
+ },
+ {
+  "id": 95,
+  "cat": "Small Talk",
+  "name": "Lift banter",
+  "setup": "In the lift, a neighbour makes a friendly joke.",
+  "goal": "Play along and ask back.",
+  "opening": "Working hard or hardly working?",
+  "target": "Ha! A bit of both, honestly. You?",
+  "ctx": "电梯里邻居开玩笑——接梗并反问。"
+ },
+ {
+  "id": 96,
+  "cat": "Small Talk",
+  "name": "In the queue",
+  "setup": "Waiting in a long queue, the person beside you comments.",
+  "goal": "Agree and keep it light.",
+  "opening": "Long queue today, hey?",
+  "target": "Yeah, always is at this time! Worth the wait though.",
+  "ctx": "排队时旁边人搭话——附和并轻松接。"
+ },
+ {
+  "id": 97,
+  "cat": "Small Talk",
+  "name": "Garden compliment",
+  "setup": "A neighbour compliments your garden as you pass.",
+  "goal": "Thank them warmly.",
+  "opening": "Your garden's looking great!",
+  "target": "Oh, thank you! I've been putting in the hours.",
+  "ctx": "邻居夸你的院子——热情道谢。"
+ },
+ {
+  "id": 98,
+  "cat": "Small Talk",
+  "name": "Let you off the hook",
+  "setup": "The chat's winding down and they kindly let you go.",
+  "goal": "Wrap up warmly.",
+  "opening": "Anyway, don't let me keep you.",
+  "target": "No worries — good to catch up! See you round.",
+  "ctx": "对方主动收尾放你走——温暖告别。"
  }
 ]
