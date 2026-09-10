@@ -540,6 +540,7 @@ function renderScenarioIntro(s){
   view().innerHTML = `
   <div class="card">
     <div class="pill">Scene ${s.id} · ${s.name}　(${qi+1}/${queue.length})</div>
+    <img src="images/${s.id}.png" alt="" style="width:100%;border-radius:14px;margin:14px 0 0;display:block" onerror="this.style.display='none'">
     <div class="scene" style="margin:14px 0">
       <div class="scene-ico">${catIcon(s.cat)}</div>
       <div class="scene-txt">${s.setup||s.ctx}${s.goal?`<div style="margin-top:8px;color:var(--brand);font-weight:600">🎯 ${s.goal}</div>`:''}</div>
@@ -609,6 +610,7 @@ function speedIntro(id){
   view().innerHTML = `
   <div class="card">
     <div class="pill">Pass 2 · ${s.name}　(${qi+1}/${queue2.length})</div>
+    <img src="images/${s.id}.png" alt="" style="width:100%;border-radius:14px;margin:14px 0 0;display:block" onerror="this.style.display='none'">
     <div class="scene" style="margin:14px 0">
       <div class="scene-ico">${catIcon(s.cat)}</div>
       <div class="scene-txt">${s.setup||s.ctx}${s.goal?`<div style="margin-top:8px;color:var(--brand);font-weight:600">🎯 ${s.goal}</div>`:''}</div>
