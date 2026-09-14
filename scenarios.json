@@ -997,5 +997,16 @@
   "opening": "Anyway, don't let me keep you.",
   "target": "No worries — good to catch up! See you round.",
   "ctx": "对方主动收尾放你走——温暖告别。"
+ },
+ {
+  "id": 99,
+  "cat": "Hospitality",
+  "name": "Clearing plates",
+  "setup": "You are on a shift at the hotel breakfast buffet. A guest has stacked some used plates to one side but is still sipping their coffee. You step over to clear them — but you check with them first.",
+  "goal": "Ask if you can take the finished plates.",
+  "opening": "",
+  "target": "Excuse me, have you finished with these? Can I take them for you?",
+  "ctx": "酒店早餐自助餐实习。客人桌上有用过的盘子，人还在喝咖啡——你过去收之前先问一句。",
+  "selfStart": true
  }
 ]
