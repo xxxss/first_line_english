@@ -495,6 +495,15 @@ function streakCardHTML(){
   </div>`;
 }
 
+// 今日到目前为止的分解（新题/复习/已完成），任何状态下都能看到——包括开始练习后
+function todayTallyHTML(){
+  const t=today();
+  const nw = (state.newDay===t)?(state.newCount||0):0;
+  const dn = (state.doneDay===t)?(state.doneCount||0):0;
+  const rv = Math.max(0, dn - nw);   // 已完成里非新题的部分≈复习
+  return `<div class="hint" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
+    Today so far: <b>🆕 ${nw}</b> new · <b>🔁 ${rv}</b> reviewed · <b>✅ ${dn}/${dailyGoal()}</b> done</div>`;
+}
 function renderHome(){
   setTab('home');
   if(state.session && state.session.day!==today()){ state.session=null; save(); }  // 清掉隔天的残留会话
@@ -513,6 +522,7 @@ function renderHome(){
       <div class="big" style="margin-top:8px">Session in progress</div>
       <div class="ctx">You left off partway through — resume to finish it (nothing's lost).</div>
       <button class="btn btn-primary" onclick="resumeSession()">Resume practice →</button>
+      ${todayTallyHTML()}
     </div>`;
   }else if(total>0){
     html = `<div class="card">
@@ -527,6 +537,7 @@ function renderHome(){
       <div class="big" style="margin-top:8px">All done today!</div>
       <div class="ctx">${backlog>0?`You hit your daily goal — ${backlog} due review${backlog===1?'':'s'} rolled to tomorrow so nothing piles up. Feeling keen? Clear them now. `:`Tomorrow's due scenarios line up automatically. `}Keep your streak alive.</div>
       ${backlog>0?`<button class="btn btn-ghost" style="margin-top:12px;display:inline-block;width:auto;padding:10px 20px" onclick="startExtraReview()">Review the ${backlog} due now →</button>`:''}
+      ${todayTallyHTML()}
     </div>`;
   }
   // focus 突击是可选的：未做完不锁死主线，显示一个可选的“继续”卡（想练多少练多少）
