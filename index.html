@@ -23,11 +23,15 @@
       --line:#252c35; --shadow:0 1px 3px rgba(0,0,0,.4); }
   }
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
+  html,body{margin:0}
+  /* 全高 flex 外壳：内容区自己滚，页签栏作为底部子元素始终贴底（避免 iOS 浏览器底栏把固定页签顶起来） */
+  html{height:100%}
   body{background:var(--bg);color:var(--ink);
     font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-    -webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) 0 0}
-  .wrap{max-width:520px;margin:0 auto;padding:20px 18px 60px}
+    -webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) 0 0;
+    height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  .wrap{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    width:100%;max-width:520px;margin:0 auto;padding:20px 18px 24px}
   h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
   .sub{color:var(--muted);font-size:13px;margin-top:2px}
   .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
@@ -66,8 +70,8 @@
   .drill-dots{display:flex;gap:8px;justify-content:center;margin:14px 0}
   .dot{width:14px;height:14px;border-radius:50%;background:var(--line);transition:background .2s}
   .dot.on{background:var(--good)}
-  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--card);
-    border-top:1px solid var(--line);display:flex;max-width:520px;margin:0 auto}
+  .tabbar{flex-shrink:0;width:100%;max-width:520px;margin:0 auto;background:var(--card);
+    border-top:1px solid var(--line);display:flex}
   .tab{flex:1;text-align:center;padding:11px 0 calc(11px + env(safe-area-inset-bottom));
     font-size:12px;color:var(--muted);cursor:pointer;font-weight:600}
   .tab.active{color:var(--brand)}
