@@ -121,7 +121,9 @@
 
 <div class="tabbar">
   <div class="tab active" data-tab="home"><b>▲</b>Today</div>
+  <div class="tab" data-tab="scenes"><b>☰</b>Scenes</div>
   <div class="tab" data-tab="progress"><b>◔</b>Progress</div>
+  <div class="tab" data-tab="settings"><b>⚙</b>Settings</div>
 </div>
 
 <script>
@@ -537,15 +539,13 @@ function renderHome(){
     </div>` + html;
   }
   html += streakCardHTML();
-  html += `<div class="card">
-    <div class="big">🎯 Daily goal</div>
-    <div class="ctx">Caps your day. Reviews come first; new scenarios top up the rest. If reviews already fill it, new intake pauses and extra reviews roll to tomorrow — so it never piles up.</div>
-    <div class="row">
-      ${[8,12,16,20].map(n=>`<button class="btn ${n===dailyGoal()?'btn-primary':'btn-ghost'}" style="padding:11px 4px" onclick="setGoal(${n})">${n}<br><span style="font-weight:400;font-size:11px;opacity:.8">~${Math.round(n*1.6)} min</span></button>`).join('')}
-    </div>
-  </div>`;
+  view().innerHTML = html;
+}
+// Scenes tab — all categories & scenarios, with per-topic Focus drill
+function renderScenes(){
+  setTab('scenes');
   const cats=[...new Set(SCENARIOS.map(s=>s.cat||'Other'))];
-  html += `<div class="card"><div class="big">All scenarios (${SCENARIOS.length})</div>
+  const html = `<div class="card"><div class="big">All scenarios (${SCENARIOS.length})</div>
     <div class="ctx" style="margin-top:2px">Tap <b>Focus</b> on a topic to drill it intensively — great when you have a real goal coming up (an interview, a trip). It doesn't use up your daily goal.</div>` +
     cats.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 2px">
         <span class="pill">${catIcon(c)} ${c}</span>
@@ -559,7 +559,33 @@ function renderHome(){
           <div class="box-tag">${on?('Box '+box):'—'}</div></div>`;
       }).join('')
     ).join('') + `</div>`;
+  view().innerHTML = html;
+}
+// Settings tab — daily goal, voice test, backup/restore, reset, how-it-works
+function renderSettings(){
+  setTab('settings');
+  let html = `<div class="card">
+    <div class="big">🎯 Daily goal</div>
+    <div class="ctx">Caps your day. Reviews come first; new scenarios top up the rest. If reviews already fill it, new intake pauses and extra reviews roll to tomorrow — so it never piles up.</div>
+    <div class="row">
+      ${[8,12,16,20].map(n=>`<button class="btn ${n===dailyGoal()?'btn-primary':'btn-ghost'}" style="padding:11px 4px" onclick="setGoal(${n})">${n}<br><span style="font-weight:400;font-size:11px;opacity:.8">~${Math.round(n*1.6)} min</span></button>`).join('')}
+    </div>
+  </div>`;
   html += voiceCardHTML();
+  html += `<div class="card">
+    <div class="big">Backup &amp; restore</div>
+    <div class="ctx">Your progress lives only on this device. Moving to a new phone, browser, or a future version? <b>Export</b> here, save the text somewhere (a note to yourself), then <b>Import</b> it on the other device to carry everything over.</div>
+    <textarea id="backupBox" placeholder="Your backup text appears here after Export — or paste a backup here, then tap Import." style="width:100%;height:78px;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px;font-family:monospace;resize:vertical"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn btn-primary" onclick="exportData()">⬇ Export</button>
+      <button class="btn btn-ghost" onclick="importData()">⬆ Import</button>
+    </div>
+  </div>`;
+  html += `<div class="card">
+    <div class="big">Reset</div>
+    <div class="ctx">Wipe all progress and start over.</div>
+    <button class="btn btn-ghost" onclick="if(confirm('Wipe all progress?')){localStorage.removeItem('${LS}');location.reload();}">Reset progress</button>
+  </div>`;
   html += `<div class="center" style="margin-top:4px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:8px 16px;font-size:13px" onclick="renderOnboarding(0)">❔ How it works</button></div>`;
   view().innerHTML = html;
 }
@@ -795,20 +821,6 @@ function renderProgress(){
           <div style="flex-shrink:0">${sparkline(lats)}</div>
           <div class="box-tag">Box ${st.box}</div></div>`;
     }).join('') || '<div class="muted" style="font-size:13px">Not started yet.</div>'}
-  </div>
-  <div class="card">
-    <div class="big">Backup &amp; restore</div>
-    <div class="ctx">Your progress lives only on this device. Moving to a new phone, browser, or a future version? <b>Export</b> here, save the text somewhere (a note to yourself), then <b>Import</b> it on the other device to carry everything over.</div>
-    <textarea id="backupBox" placeholder="Your backup text appears here after Export — or paste a backup here, then tap Import." style="width:100%;height:78px;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px;font-family:monospace;resize:vertical"></textarea>
-    <div class="row" style="margin-top:10px">
-      <button class="btn btn-primary" onclick="exportData()">⬇ Export</button>
-      <button class="btn btn-ghost" onclick="importData()">⬆ Import</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="big">Reset</div>
-    <div class="ctx">Wipe all progress and start over.</div>
-    <button class="btn btn-ghost" onclick="if(confirm('Wipe all progress?')){localStorage.removeItem('${LS}');location.reload();}">Reset progress</button>
   </div>`;
 }
 // 导出/导入进度：把本机所有 fle_ 数据打包成文本，换设备/换网址/换版本时手动迁移（无需后端）
@@ -855,7 +867,7 @@ function finishOnboarding(){ localStorage.setItem(ONBOARD_KEY,'1'); renderHome()
 function setTab(t){ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active', el.dataset.tab===t)); }
 document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{
   stopListen(); stopSpeak();
-  el.dataset.tab==='home'?renderHome():renderProgress();
+  ({home:renderHome, scenes:renderScenes, progress:renderProgress, settings:renderSettings}[el.dataset.tab]||renderHome)();
 });
 
 //////////////////// boot ////////////////////
