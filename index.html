@@ -130,7 +130,10 @@
 let SCENARIOS = [];
 const NEW_CAP = 6;                       // max brand-new scenarios per day (new items are the heaviest)
 const DEFAULT_GOAL = 12;                 // default daily total (reviews + new); user-adjustable
-const BOX_DAYS = {1:1, 2:2, 3:4, 4:7};  // Leitner intervals (days)
+// Leitner intervals (days) — expanding along the forgetting curve so mastered
+// lines back off to weeks/months instead of returning every 7 days and piling up
+const BOX_DAYS = {1:1, 2:2, 3:4, 4:7, 5:14, 6:30, 7:60, 8:120};
+const MAX_BOX = 8;
 const DAY = 86400000;
 
 //////////////////// state ////////////////////
@@ -398,6 +401,18 @@ function startFocus(cat){
   saveSession();
   runStep();
 }
+// 已达每日目标后的「再练一点」：把被顺延的到期复习全部练掉（不受封顶限制，SRS 照常记、计入今日已完成）
+function startExtraReview(){
+  focusCat = null;
+  const t = today();
+  const risk = id => { const st=scState(id); return (t - st.due) / (BOX_DAYS[st.box]||1); };
+  queue = state.introduced.filter(id=>scState(id).due<=t).sort((a,b)=>risk(b)-risk(a));
+  queue2 = shuffle([...queue]);
+  pass = 1; qi = 0;
+  if(queue.length===0){ renderHome(); return; }
+  saveSession();
+  runStep();
+}
 // 一次 session 分两轮交错：
 //  第1轮 — 每个场景：准备 → 冷启动 → 影子跟读×3 → 打分（装进去 + 驱动 SRS）
 //  第2轮 — 打乱后：  每个场景：4/3/2 极速轮（间隔提取，此时已被其他场景隔开）
@@ -497,7 +512,8 @@ function renderHome(){
     html = `<div class="card center">
       <div style="font-size:44px">✅</div>
       <div class="big" style="margin-top:8px">All done today!</div>
-      <div class="ctx">${backlog>0?`${backlog} more queued — they'll come tomorrow (your daily goal caps today, so it never piles up). `:`Tomorrow's due scenarios line up automatically. `}Keep your streak alive.</div>
+      <div class="ctx">${backlog>0?`You hit your daily goal — ${backlog} due review${backlog===1?'':'s'} rolled to tomorrow so nothing piles up. Feeling keen? Clear them now. `:`Tomorrow's due scenarios line up automatically. `}Keep your streak alive.</div>
+      ${backlog>0?`<button class="btn btn-ghost" style="margin-top:12px;display:inline-block;width:auto;padding:10px 20px" onclick="startExtraReview()">Review the ${backlog} due now →</button>`:''}
     </div>`;
   }
   // focus 突击是可选的：未做完不锁死主线，显示一个可选的“继续”卡（想练多少练多少）
@@ -686,7 +702,7 @@ function scoreScenario(id, score){
   const st = scState(id);
   if(!state.introduced.includes(id)) state.introduced.push(id);   // 只有真正练到并打分，才进入 SRS 主线
   st.hist.push({d:today(), lat:curLat, score});
-  if(score==='good') st.box = Math.min(4, st.box+1);
+  if(score==='good') st.box = Math.min(MAX_BOX, st.box+1);
   else if(score==='bad') st.box = 1;
   st.due = today() + BOX_DAYS[st.box]*DAY;
   const t=today();
@@ -737,7 +753,7 @@ function renderProgress(){
   all.sort((a,b)=>a.d-b.d);
   const recent = all.slice(-20);
   const max = Math.max(3000, ...recent.map(h=>h.lat));
-  const graduated = Object.values(state.sc).filter(st=>st.box>=4).length;
+  const graduated = Object.values(state.sc).filter(st=>st.box>=6).length;
   view().innerHTML = `
   <div class="card">
     <div class="big">Overall latency (last ${recent.length} reps)</div>
@@ -752,7 +768,7 @@ function renderProgress(){
   </div>
   <div class="card">
     <div class="big">Per-scenario speed-up</div>
-    <div class="ctx">Each line's own latency across its reps (oldest → newest). A falling line = spaced repetition making <i>that</i> line automatic. 🎓 Box 4 (solid): <b>${graduated}/${SCENARIOS.length}</b></div>
+    <div class="ctx">Each line's own latency across its reps (oldest → newest). A falling line = spaced repetition making <i>that</i> line automatic. 🎓 Long-term (30d+ interval): <b>${graduated}/${SCENARIOS.length}</b></div>
     ${SCENARIOS.filter(s=>state.introduced.includes(s.id))
       .map(s=>({s, st:scState(s.id)}))
       .sort((a,b)=>b.st.hist.filter(x=>x.lat!=null).length - a.st.hist.filter(x=>x.lat!=null).length)
