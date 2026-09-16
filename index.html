@@ -419,7 +419,7 @@ function startExtraReview(){
 //  进度(queue/pass/qi)持久化，中途退出可续
 function runStep(){
   if(pass===1){
-    if(qi>=queue.length){ pass=2; qi=0; runStep(); return; }
+    if(qi>=queue.length){ pass=2; qi=0; saveSession(); renderPassTransition(); return; }
     saveSession(); curLat=null;
     renderScenarioIntro(SCENARIOS.find(x=>x.id===queue[qi]));
   }else{
@@ -427,6 +427,17 @@ function runStep(){
     saveSession();
     speedIntro(queue2[qi]);
   }
+}
+// 第1轮(跟读)全部做完 → 进第2轮(极速轮)之间的明确过渡，让用户知道进入了新阶段
+function renderPassTransition(){
+  view().innerHTML = `
+  <div class="card center">
+    <div style="font-size:44px">✅</div>
+    <div class="big" style="margin-top:8px">Round 1 done — ${queue.length} line${queue.length===1?'':'s'} shadowed</div>
+    <div class="ctx" style="margin-top:8px">Now the <b>speed round</b>: the same lines in a new order, said <b>from memory</b> — no shadowing this time. Beat the clock (5s → 3s → 2s). This is where they lock in.</div>
+    <button class="btn btn-primary" onclick="runStep()">Start speed round →</button>
+    <div class="center" style="margin-top:6px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="exitPractice()">⤺ Exit${focusCat?' focus':''}</button></div>
+  </div>`;
 }
 async function playAndListen(s){
   const micReady = await ensureMic();
