@@ -86,6 +86,8 @@
   .scene{display:flex;gap:14px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px}
   .scene-ico{font-size:38px;line-height:1;flex-shrink:0}
   .scene-txt{font-size:16px;line-height:1.55}
+  .scene-hear{flex-shrink:0;margin-left:auto;align-self:flex-start;background:transparent;border:0;cursor:pointer;font-size:22px;line-height:1;padding:2px;opacity:.7}
+  .scene-hear:active{opacity:1}
   .goal{background:rgba(59,110,245,.1);color:var(--brand);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;margin:0 0 6px}
   .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50}
   .sheet-card{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:520px;box-shadow:var(--shadow)}
@@ -550,31 +552,28 @@ function renderScenarioIntro(s){
     <div class="scene" style="margin:12px 0 0">
       <div class="scene-ico">${catIcon(s.cat)}</div>
       <div class="scene-txt">${s.setup||s.ctx}${s.goal?`<div style="margin-top:8px;color:var(--brand);font-weight:600">🎯 ${s.goal}</div>`:''}</div>
+      <button class="scene-hear" onclick="narrateScene(${s.id})" title="Hear the scene" aria-label="Hear the scene">🔊</button>
     </div>
-    <div class="row" style="margin-top:12px">
-      <button class="btn btn-ghost" onclick="narrateScene(${s.id})">🔊 Hear the scene</button>
-      <button class="btn btn-primary" id="readyBtn" onclick="beginCue(${s.id})">Ready — let's go →</button>
+    <div id="actZone">
+      <button class="btn btn-primary" id="readyBtn" style="margin-top:14px" onclick="beginCue(${s.id})">Ready — let's go →</button>
+      <div class="hint center" id="prepHint" style="margin-top:10px">Picture yourself in the scene, then tap Ready. <b>Timing begins only after they speak.</b></div>
     </div>
-    <div id="micWrap" class="hidden center" style="margin:16px 0 6px">
-      <button class="mic" id="micBtn" onclick="retryListen(${s.id})">🎤</button>
+    <div class="center" style="margin-top:6px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="exitPractice()">⤺ Exit${focusCat?' focus':''}</button></div>
+  </div>`;
+}
+// Ready pressed — swap the action zone to the mic (image/opening/scene stay put) and run the cue
+function beginCue(id){
+  const s=SCENARIOS.find(x=>x.id===id); curLat=null;
+  document.getElementById('actZone').innerHTML = `
+    <div class="center" style="margin:16px 0 6px">
+      <button class="mic" id="micBtn" onclick="retryListen(${id})">🎤</button>
       <div class="hint center">The moment they finish, <b>speak within 3s</b> — try it yourself before peeking.</div>
     </div>
     <div id="latBox" style="min-height:0"></div>
     <div id="toReveal" class="hidden" style="margin-top:10px">
-      <button class="btn btn-primary" onclick="revealTarget(${s.id})">Show the answer →</button>
+      <button class="btn btn-primary" onclick="revealTarget(${id})">Show the answer →</button>
     </div>
-    <div id="skipWrap" class="hidden"><button class="btn btn-ghost" style="margin-top:8px" onclick="revealTarget(${s.id})">Can't say it / Skip</button></div>
-    <div class="hint center" id="prepHint" style="margin-top:10px">Picture yourself in the scene, then tap Ready. <b>Timing begins only after they speak.</b></div>
-    <div class="center" style="margin-top:6px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="exitPractice()">⤺ Exit${focusCat?' focus':''}</button></div>
-  </div>`;
-}
-// Ready pressed — reveal mic in place (no screen switch) and run the cue
-function beginCue(id){
-  const s=SCENARIOS.find(x=>x.id===id); curLat=null;
-  document.getElementById('readyBtn').classList.add('hidden');
-  document.getElementById('prepHint')?.classList.add('hidden');
-  document.getElementById('micWrap').classList.remove('hidden');
-  document.getElementById('skipWrap').classList.remove('hidden');
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="revealTarget(${id})">Can't say it / Skip</button>`;
   playAndListen(s);
 }
 function retryListen(id){ const s=SCENARIOS.find(x=>x.id===id);
@@ -587,15 +586,16 @@ let drillCount=0;
 function revealTarget(id){
   stopListen(); document.getElementById('micBtn')?.classList.remove('live');
   const s=SCENARIOS.find(x=>x.id===id); drillCount=0;
-  view().innerHTML = `
-  <div class="card">
-    <div class="pill">Scene ${s.id} · Target line</div>
-    <div class="said" style="margin-top:14px">Lock in this one line (always the same):</div>
+  const zone=document.getElementById('actZone');
+  const html = `
+    <div class="said" style="margin-top:16px">Lock in this one line (always the same):</div>
     <div class="target" id="tgt">${s.target}</div>
-    <div class="ctx" style="margin-top:16px"><b>Shadow it ×3</b> — tap play and speak <b>along with</b> the voice, copying the rhythm and melody.</div>
+    <div class="ctx" style="margin-top:14px"><b>Shadow it ×3</b> — tap play and speak <b>along with</b> the voice, copying the rhythm and melody.</div>
     <div class="drill-dots"><span class="dot" id="d0"></span><span class="dot" id="d1"></span><span class="dot" id="d2"></span></div>
-    <button class="btn btn-primary" id="drillBtn" onclick="shadowTap(${s.id})">🔊 Play &amp; shadow (0/3)</button>
-  </div>`;
+    <button class="btn btn-primary" id="drillBtn" onclick="shadowTap(${s.id})">🔊 Play &amp; shadow (0/3)</button>`;
+  // stay on the same page (image + scene still above); fall back to a fresh card if the zone is gone
+  if(zone){ zone.innerHTML = html; }
+  else { view().innerHTML = `<div class="card"><div class="pill">Scene ${s.id} · ${s.name}</div>${html}</div>`; }
 }
 function shadowTap(id){
   const s=SCENARIOS.find(x=>x.id===id);
@@ -656,18 +656,18 @@ async function runSpeed(id, idx){
 function scoreCold(id){
   stopListen();
   const s=SCENARIOS.find(x=>x.id===id);
-  view().innerHTML = `
-  <div class="card center">
-    <div class="pill">Pass 1 · lock it in</div>
-    <div class="target" style="margin:14px 0 6px;font-size:20px">${s.target}</div>
+  const zone=document.getElementById('actZone');
+  const html = `
+    <div class="target" style="margin:16px 0 6px;font-size:20px">${s.target}</div>
     <div class="ctx">How did your <b>very first</b> try go (before any help)?</div>
     <div class="row score">
       <button class="btn s-bad" onclick="scoreScenario(${id},'bad')">😖<br>Needed help</button>
       <button class="btn s-ok" onclick="scoreScenario(${id},'ok')">🙂<br>Slow/clunky</button>
       <button class="btn s-good" onclick="scoreScenario(${id},'good')">😎<br>Fluent</button>
     </div>
-    ${curLat!=null?`<div class="hint" style="margin-top:10px">Cold-start latency: <b>${(curLat/1000).toFixed(1)}s</b></div>`:''}
-  </div>`;
+    ${curLat!=null?`<div class="hint" style="margin-top:10px">Cold-start latency: <b>${(curLat/1000).toFixed(1)}s</b></div>`:''}`;
+  if(zone){ zone.innerHTML = html; }
+  else { view().innerHTML = `<div class="card center"><div class="pill">Pass 1 · lock it in</div>${html}</div>`; }
 }
 // End of pass 2 speed rounds — reveal the line, then move on
 function speedDone(id){
