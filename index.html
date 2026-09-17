@@ -425,7 +425,7 @@ function startExtraReview(){
 //  进度(queue/pass/qi)持久化，中途退出可续
 function runStep(){
   if(pass===1){
-    if(qi>=queue.length){ pass=2; qi=0; saveSession(); renderPassTransition(); return; }
+    if(qi>=queue.length){ pass=2; qi=0; markStreakDone(); saveSession(); renderPassTransition(); return; }   // 第1轮做完即算今日完成、计连胜（第2轮极速轮为可选巩固）
     saveSession(); curLat=null;
     renderScenarioIntro(SCENARIOS.find(x=>x.id===queue[qi]));
   }else{
@@ -441,7 +441,8 @@ function renderPassTransition(){
   <div class="card center">
     <div style="font-size:44px">✅</div>
     <div class="big" style="margin-top:8px">Round 1 done — ${queue.length} line${queue.length===1?'':'s'} shadowed</div>
-    <div class="ctx" style="margin-top:8px">Now the <b>speed round</b>: the same lines in a new order, said <b>from memory</b> — no shadowing this time. Beat the clock (5s → 3s → 2s). This is where they lock in.</div>
+    <div class="lat good" style="font-size:22px;margin:8px 0 0">🔥 ${state.streak||0}<small> day streak — secured!</small></div>
+    <div class="ctx" style="margin-top:8px">Today's counted ✓ The <b>speed round</b> below is optional but it's where the lines lock in: same lines, new order, said <b>from memory</b> — no shadowing. Beat the clock (5s → 3s → 2s).</div>
     <button class="btn btn-primary" onclick="runStep()">Start speed round →</button>
     <div class="center" style="margin-top:6px"><button class="btn btn-ghost" style="display:inline-block;width:auto;padding:5px 14px;font-size:13px" onclick="exitPractice()">⤺ Exit${focusCat?' focus':''}</button></div>
   </div>`;
