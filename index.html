@@ -102,7 +102,7 @@
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div><h1>First Line English</h1><div class="sub" id="dateSub"></div></div>
+    <div><h1>First Line English</h1></div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="streak" id="voiceBtn" onclick="toggleSheet(true)" style="cursor:pointer">🔊</button>
       <div class="streak" id="streak">🔥 0</div>
@@ -436,6 +436,7 @@ function runStep(){
 }
 // 第1轮(跟读)全部做完 → 进第2轮(极速轮)之间的明确过渡，让用户知道进入了新阶段
 function renderPassTransition(){
+  setChrome(false);
   view().innerHTML = `
   <div class="card center">
     <div style="font-size:44px">✅</div>
@@ -476,7 +477,8 @@ function showLatency(lat){
 
 //////////////////// render ////////////////////
 const view = ()=>document.getElementById('view');
-function fmtDate(){ const d=new Date(); return d.toLocaleDateString('en-US',{month:'long',day:'numeric',weekday:'long'}); }
+// 顶栏（标题+连胜）仅在 tab 页显示；进入场景练习时隐藏，减少干扰、更沉浸
+function setChrome(show){ const tb=document.querySelector('.topbar'); if(tb) tb.hidden = !show; }
 
 function streakCardHTML(){
   const t=today(), wd=['S','M','T','W','T','F','S'];
@@ -609,7 +611,7 @@ function renderSettings(){
 //     Tap Ready → stay on the same screen, play the opening and start listening
 //     (selfStart scenes go straight into recording). Image stays visible throughout.
 function renderScenarioIntro(s){
-  curLat=null;
+  curLat=null; setChrome(false);
   view().innerHTML = `
   <div class="card">
     <div class="pill">Scene ${s.id} · ${s.name}　(${qi+1}/${queue.length})</div>
@@ -679,7 +681,7 @@ const SPEED_LIMITS=[5,3,2];
 // The scene image (shown on every round) gives instant re-immersion.
 function speedIntro(id){ speedRound(id, 0); }
 function speedRound(id, idx){
-  stopListen();
+  stopListen(); setChrome(false);
   if(idx>=SPEED_LIMITS.length){ speedDone(id); return; }
   const s=SCENARIOS.find(x=>x.id===id);
   const L=SPEED_LIMITS[idx];
@@ -687,6 +689,11 @@ function speedRound(id, idx){
   <div class="card center">
     <div class="pill">Speed round ${idx+1}/3 · beat ${L}s · ${s.name}　(${qi+1}/${queue2.length})</div>
     <img src="images/${s.id}.jpg" alt="" style="width:100%;border-radius:14px;margin:12px 0 0;display:block" onerror="this.style.display='none'">
+    <div class="scene" style="margin:12px 0 0;text-align:left">
+      <div class="scene-ico">${catIcon(s.cat)}</div>
+      <div class="scene-txt">${s.setup||s.ctx}${s.goal?`<div style="margin-top:8px;color:var(--brand);font-weight:600">🎯 ${s.goal}</div>`:''}</div>
+      <button class="scene-hear" onclick="narrateScene(${s.id})" title="Hear the scene" aria-label="Hear the scene">🔊</button>
+    </div>
     ${s.selfStart? `<div class="said" style="margin-top:12px">${s.goal||'Your line'}</div>`
       : `<div class="said" style="margin-top:12px">They say:</div>
          <div class="line-en" style="font-size:17px">"${s.opening}"
@@ -739,7 +746,7 @@ function scoreCold(id){
 }
 // End of pass 2 speed rounds — reveal the line, then move on
 function speedDone(id){
-  stopListen();
+  stopListen(); setChrome(false);
   const s=SCENARIOS.find(x=>x.id===id);
   view().innerHTML = `
   <div class="card center">
@@ -766,7 +773,7 @@ function scoreScenario(id, score){
   qi++; runStep();
 }
 function renderDone(){
-  frozeMsg=0;
+  frozeMsg=0; setChrome(false);
   const wasFocus = focusCat;
   clearSession();
   markStreakDone();   // 练完一轮（含 focus 突击）就算今天完成，计入连胜
@@ -879,7 +886,7 @@ function renderOnboarding(i){
   </div>`;
 }
 function finishOnboarding(){ localStorage.setItem(ONBOARD_KEY,'1'); renderHome(); }
-function setTab(t){ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active', el.dataset.tab===t)); }
+function setTab(t){ setChrome(true); document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active', el.dataset.tab===t)); }
 document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{
   stopListen(); stopSpeak();
   ({home:renderHome, scenes:renderScenes, progress:renderProgress, settings:renderSettings}[el.dataset.tab]||renderHome)();
@@ -903,7 +910,6 @@ async function boot(){
   state.introduced = (state.introduced||[]).filter(id=>valid.has(id));
   if(state.session && !((state.session.queue||[]).every(id=>valid.has(id)))) state.session = null;
   if(state.introduced.length !== before) save();
-  document.getElementById('dateSub').textContent = fmtDate();
   document.getElementById('streak').textContent = `🔥 ${state.streak||0}`;
   if(!localStorage.getItem(ONBOARD_KEY)) renderOnboarding(0); else renderHome();
 }
