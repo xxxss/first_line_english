@@ -97,6 +97,7 @@
   .sheet-card{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:520px;box-shadow:var(--shadow)}
   @media(min-width:521px){.sheet{align-items:center}.sheet-card{border-radius:18px}}
   .hidden{display:none}
+  [hidden]{display:none!important}   /* el.hidden 兜底：否则 .topbar{display:flex} 会盖过它 */
 </style>
 </head>
 <body>
