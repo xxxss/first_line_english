@@ -914,6 +914,30 @@ async function boot(){
 }
 boot();
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+// TEMP 诊断：显示全屏模式下的视口尺寸，用于定位底部空隙。修好后删除。
+(function(){
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;left:6px;top:calc(env(safe-area-inset-top) + 46px);z-index:99999;background:#000;color:#0f0;font:11px/1.4 monospace;padding:7px 9px;border-radius:6px;white-space:pre;pointer-events:none;opacity:.9';
+  const probeB=document.createElement('div'); probeB.style.cssText='position:fixed;bottom:0;left:0;width:0;height:env(safe-area-inset-bottom)';
+  const probeT=document.createElement('div'); probeT.style.cssText='position:fixed;top:0;left:0;width:0;height:env(safe-area-inset-top)';
+  document.body.append(d,probeB,probeT);
+  function upd(){
+    const vv=window.visualViewport;
+    d.textContent=
+      'standalone: '+navigator.standalone+
+      '\nscreen.h : '+screen.height+
+      '\ninnerH   : '+window.innerHeight+
+      '\ndocCliH  : '+document.documentElement.clientHeight+
+      '\nvVP.h    : '+(vv?Math.round(vv.height):'-')+
+      '\nsafe top : '+getComputedStyle(probeT).height+
+      '\nsafe bot : '+getComputedStyle(probeB).height+
+      '\ndpr      : '+window.devicePixelRatio;
+  }
+  upd();
+  addEventListener('resize',upd); addEventListener('orientationchange',upd);
+  if(window.visualViewport){visualViewport.addEventListener('resize',upd);}
+  setTimeout(upd,600); setTimeout(upd,1600);
+})();
 </script>
 </body>
 </html>
