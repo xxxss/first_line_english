@@ -914,6 +914,26 @@ async function boot(){
 }
 boot();
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+// TEMP 诊断 v30：测各 CSS 高度单位在全屏 PWA 下解析成多少，定位底部空隙。修好后删。
+(function(){
+  const mk=css=>{const e=document.createElement('div');e.style.cssText='position:fixed;top:0;left:-9999px;width:1px;'+css;document.body.appendChild(e);return e;};
+  const vh=mk('height:100vh'),dvh=mk('height:100dvh'),svh=mk('height:100svh'),fill=mk('height:-webkit-fill-available'),pct=mk('height:100%');
+  const sb=mk('bottom:0;top:auto;left:0;height:env(safe-area-inset-bottom)'),st=mk('height:env(safe-area-inset-top)');
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;left:6px;top:100px;z-index:99999;background:#000;color:#0f0;font:11px/1.35 monospace;padding:7px 9px;border-radius:6px;white-space:pre;pointer-events:none;opacity:.92';
+  document.body.appendChild(d);
+  const h=e=>Math.round(e.getBoundingClientRect().height);
+  function upd(){
+    d.textContent='VER v30  standalone:'+navigator.standalone+
+      '\nscreen.h:'+screen.height+'  innerH:'+window.innerHeight+
+      '\n100vh:'+h(vh)+'  100dvh:'+h(dvh)+'  100svh:'+h(svh)+
+      '\nfill-avail:'+h(fill)+'  100%:'+h(pct)+
+      '\nsafeTop:'+h(st)+'  safeBot:'+h(sb);
+  }
+  upd(); addEventListener('resize',upd); addEventListener('orientationchange',upd);
+  if(window.visualViewport)visualViewport.addEventListener('resize',upd);
+  setTimeout(upd,700); setTimeout(upd,1800);
+})();
 </script>
 </body>
 </html>
