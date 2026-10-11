@@ -1008,5 +1008,67 @@
   "target": "Can I clear these for you?",
   "ctx": "酒店早餐自助餐实习。客人桌上有用过的盘子，人还在喝咖啡——你过去收之前先问一句。",
   "selfStart": true
+ },
+ {
+  "id": 100,
+  "cat": "Back to School",
+  "name": "How was your break?",
+  "setup": "First day back after the holidays. A classmate drops into the seat next to you.",
+  "goal": "Answer, then ask back.",
+  "opening": "Hey! How was your break?",
+  "target": "Yeah, really good thanks — bit too short! How was yours?",
+  "ctx": "开学第一天，同学坐到你旁边问假期怎么样。"
+ },
+ {
+  "id": 101,
+  "cat": "Back to School",
+  "name": "Greet a classmate",
+  "setup": "You spot a classmate you have not seen in two weeks across the room.",
+  "goal": "Say hi and ask about their break.",
+  "opening": "",
+  "target": "Hey, good to see you! How’d you go over the break?",
+  "ctx": "看到两周没见的同学，主动打招呼问假期。",
+  "selfStart": true
+ },
+ {
+  "id": 102,
+  "cat": "Back to School",
+  "name": "Teacher welcomes you back",
+  "setup": "You walk into class. Your teacher greets you at the door.",
+  "goal": "Reply warmly.",
+  "opening": "Welcome back! Did you have a good holiday?",
+  "target": "I did, thanks! It flew by, though. Good to be back.",
+  "ctx": "走进教室，老师在门口欢迎你回来。"
+ },
+ {
+  "id": 103,
+  "cat": "Back to School",
+  "name": "Get up to much?",
+  "setup": "Waiting for class to start, a classmate turns to you.",
+  "goal": "Say it was quiet, then ask back.",
+  "opening": "Did you get up to much over the break?",
+  "target": "Not heaps — just took it easy, really. What about you?",
+  "ctx": "等上课时，同学问你假期忙不忙。"
+ },
+ {
+  "id": 104,
+  "cat": "Back to School",
+  "name": "React to their trip",
+  "setup": "A classmate tells you where they went on holiday.",
+  "goal": "React with interest and ask about it.",
+  "opening": "We went up to Queensland for a week.",
+  "target": "Oh, nice one! How was it — did you get good weather?",
+  "ctx": "同学说假期去了昆士兰一周，你表示感兴趣并追问。"
+ },
+ {
+  "id": 105,
+  "cat": "Back to School",
+  "name": "Ask about their holidays",
+  "setup": "You sit down next to a classmate before class starts.",
+  "goal": "Ask what they did over the holidays.",
+  "opening": "",
+  "target": "So, what’d you get up to over the holidays?",
+  "ctx": "上课前坐到同学旁边，主动问他们假期做了什么。",
+  "selfStart": true
  }
 ]
