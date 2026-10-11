@@ -1070,5 +1070,85 @@
   "target": "So, what’d you get up to over the holidays?",
   "ctx": "上课前坐到同学旁边，主动问他们假期做了什么。",
   "selfStart": true
+ },
+ {
+  "id": 106,
+  "cat": "Health & Doctor",
+  "name": "Book an ultrasound",
+  "setup": "Your GP gave you a referral for an ultrasound. You call the radiology clinic.",
+  "goal": "Say you have a referral and want to book.",
+  "opening": "Good morning, Radiology, how can I help?",
+  "target": "Hi, I have got a referral for an ultrasound — can I book in, please?",
+  "ctx": "GP 开了超声检查单，你打电话给影像中心预约。"
+ },
+ {
+  "id": 107,
+  "cat": "Health & Doctor",
+  "name": "Do you bulk bill?",
+  "setup": "Before you lock it in, you want to know the cost.",
+  "goal": "Ask whether it is bulk billed.",
+  "opening": "Sure — I can get you in on Tuesday.",
+  "target": "Thanks! Can I ask — do you bulk bill, or will there be a cost?",
+  "ctx": "预约前，你问是否 bulk billing、要不要自付。"
+ },
+ {
+  "id": 108,
+  "cat": "Health & Doctor",
+  "name": "How much out of pocket?",
+  "setup": "They say this scan is not fully covered.",
+  "goal": "Ask the out-of-pocket cost.",
+  "opening": "This one is not bulk billed, sorry.",
+  "target": "Okay — how much would I be out of pocket?",
+  "ctx": "对方说这项不 bulk bill，你问自付多少。"
+ },
+ {
+  "id": 109,
+  "cat": "Health & Doctor",
+  "name": "What do I bring?",
+  "setup": "The booking is done.",
+  "goal": "Ask what to bring.",
+  "opening": "You are all set for Tuesday at two.",
+  "target": "Great — do I need to bring anything, like my referral and Medicare card?",
+  "ctx": "预约好，你问要带什么（转诊单、Medicare 卡）。"
+ },
+ {
+  "id": 110,
+  "cat": "Car & Roadside",
+  "name": "Flat tyre — fit me in?",
+  "setup": "You have picked up a nail in your tyre. You ring a tyre shop nearby.",
+  "goal": "Ask if they can fix it today.",
+  "opening": "Hiya, how can I help?",
+  "target": "Hi, I have got a nail in my tyre — can you fit me in today?",
+  "ctx": "轮胎被钉子扎了，打给附近轮胎店问今天能不能补。"
+ },
+ {
+  "id": 111,
+  "cat": "Car & Roadside",
+  "name": "How much to patch it?",
+  "setup": "They can take a look this afternoon.",
+  "goal": "Ask the price to repair it.",
+  "opening": "Yeah, we can squeeze you in this arvo.",
+  "target": "Beauty — how much would it be to patch it?",
+  "ctx": "对方说下午能补，你问补一个多少钱。"
+ },
+ {
+  "id": 112,
+  "cat": "Car & Roadside",
+  "name": "Mobile tyre call-out",
+  "setup": "It is late and you can not drive on it. You call a 24-hour mobile tyre service.",
+  "goal": "Ask if someone can come out now.",
+  "opening": "24-hour mobile tyres, how can I help?",
+  "target": "Hi, I have got a flat — can someone come out to me now?",
+  "ctx": "半夜轮胎没法开，打给 24 小时上门补胎，问现在能不能来。"
+ },
+ {
+  "id": 113,
+  "cat": "Car & Roadside",
+  "name": "Call-out fee?",
+  "setup": "They can have someone there soon.",
+  "goal": "Ask the call-out fee.",
+  "opening": "Yeah, we can have someone there within the hour.",
+  "target": "Great — what is the call-out fee, roughly?",
+  "ctx": "对方说一小时内到，你问上门费大概多少。"
  }
 ]
