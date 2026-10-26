@@ -1150,5 +1150,135 @@
   "opening": "Yeah, we can have someone there within the hour.",
   "target": "Great — what is the call-out fee, roughly?",
   "ctx": "对方说一小时内到，你问上门费大概多少。"
+ },
+ {
+  "id": 114,
+  "cat": "Clarify & Repair",
+  "name": "A moment to think",
+  "setup": "A friend asks where you parked. You need a moment to remember.",
+  "goal": "Ask for a moment to think.",
+  "opening": "Where did you park?",
+  "target": "Let me think for a second.",
+  "ctx": "朋友问你车停在哪里，你需要一点时间回忆。"
+ },
+ {
+  "id": 115,
+  "cat": "Clarify & Repair",
+  "name": "Describe an unnamed object",
+  "setup": "You are cooking pasta with a friend. You need the bowl with holes for draining it, but you cannot remember the English name.",
+  "goal": "Describe the object you need.",
+  "opening": "What are you looking for?",
+  "target": "I'm not sure what it's called. It's the thing you use to drain pasta.",
+  "ctx": "和朋友煮意面，想找沥水用的漏盆，但想不起英文名称，用用途描述它。"
+ },
+ {
+  "id": 116,
+  "cat": "Clarify & Repair",
+  "name": "Correct a day",
+  "setup": "You are arranging to meet a friend. You said Tuesday by mistake, but you meant Thursday.",
+  "goal": "Correct the day to Thursday.",
+  "opening": "So, Tuesday works for you?",
+  "target": "Sorry, I meant Thursday, not Tuesday.",
+  "ctx": "约见面时把星期四说成了星期二，及时纠正。"
+ },
+ {
+  "id": 117,
+  "cat": "Clarify & Repair",
+  "name": "Clear up a misunderstanding",
+  "setup": "You asked for a table inside the restaurant. The waiter thinks you want takeaway.",
+  "goal": "Explain that you want to eat inside.",
+  "opening": "So you'd like your food to go?",
+  "target": "Sorry, that's not quite what I meant. We'd like to eat inside.",
+  "ctx": "你想在餐厅室内用餐，服务员误以为你要打包带走，澄清意思。"
+ },
+ {
+  "id": 118,
+  "cat": "Clarify & Repair",
+  "name": "Ask for details by text",
+  "setup": "You are on the phone arranging a pickup. The driver starts giving directions, but the line is breaking up.",
+  "goal": "Ask the driver to text you the details.",
+  "opening": "Take the second exit at the roundabout, then turn left at the lights.",
+  "target": "Could you text me the details, please?",
+  "ctx": "电话约接送，对方说路线时信号断断续续，请对方发短信说明。"
+ },
+ {
+  "id": 119,
+  "cat": "Clarify & Repair",
+  "name": "Fifteen or fifty?",
+  "setup": "You are asking about a call-out fee over a noisy phone line. You cannot tell whether the price is fifteen or fifty dollars.",
+  "goal": "Check which amount they said.",
+  "opening": "The call-out fee is fifty dollars.",
+  "target": "Did you say fifteen or fifty?",
+  "ctx": "电话里没听清上门费是十五还是五十美元，确认金额。"
+ },
+ {
+  "id": 120,
+  "cat": "Clarify & Repair",
+  "name": "Ask what a word means",
+  "setup": "A receptionist mentions an intake form. You heard the word intake clearly, but you do not know what it means.",
+  "goal": "Ask what intake means.",
+  "opening": "You'll need to complete the intake form before your appointment.",
+  "target": "Sorry, what does 'intake' mean?",
+  "ctx": "前台提到 intake form，你听清了 intake，但不懂词义，直接询问。"
+ },
+ {
+  "id": 121,
+  "cat": "Appointments & Paperwork",
+  "name": "Arrive for an appointment",
+  "setup": "You arrive at the clinic for your appointment with Dr Lee. You approach the reception desk.",
+  "goal": "Tell the receptionist who you have an appointment with.",
+  "opening": "Hi, how can I help you?",
+  "target": "Hi, I'm here for my appointment with Dr Lee.",
+  "ctx": "到诊所前台报到，说明预约的是 Lee 医生。"
+ },
+ {
+  "id": 122,
+  "cat": "Appointments & Paperwork",
+  "name": "Ask for a later time",
+  "setup": "You are booking an appointment. You cannot get there until after three in the afternoon.",
+  "goal": "Ask for a later afternoon appointment.",
+  "opening": "We have an appointment available at two in the afternoon.",
+  "target": "Do you have anything later in the afternoon?",
+  "ctx": "预约时对方提供下午两点，但你三点后才有空，请求更晚的时间。"
+ },
+ {
+  "id": 123,
+  "cat": "Appointments & Paperwork",
+  "name": "Confirm the appointment time",
+  "setup": "You are finishing a booking call. Before you hang up, you want to make sure you have the right day and time.",
+  "goal": "Confirm Tuesday at ten.",
+  "opening": "I can book you in for ten on Tuesday.",
+  "target": "So that's Tuesday at ten, right?",
+  "ctx": "预约电话结束前，复述确认是星期二十点。"
+ },
+ {
+  "id": 124,
+  "cat": "Appointments & Paperwork",
+  "name": "Find your account number",
+  "setup": "You are on the phone with your internet provider. Your account number is on a bill you need to find.",
+  "goal": "Ask them to wait while you find the number.",
+  "opening": "Could I have your account number, please?",
+  "target": "Just a moment — let me find it.",
+  "ctx": "打给网络服务商，对方索要账号，你需要找出账单，请对方稍等。"
+ },
+ {
+  "id": 125,
+  "cat": "Appointments & Paperwork",
+  "name": "Ask about a form field",
+  "setup": "You are filling in a registration form at a service desk. You point to a box because you are unsure what information it needs.",
+  "goal": "Ask what to write in that box.",
+  "opening": "Please fill in this section as well.",
+  "target": "Sorry, what should I put here?",
+  "ctx": "在服务柜台填登记表，指着不明白的一栏，询问应该填什么。"
+ },
+ {
+  "id": 126,
+  "cat": "Appointments & Paperwork",
+  "name": "Check if anything else is needed",
+  "setup": "You have just registered at the library. The librarian gives you your new card, and you want to check that everything is finished.",
+  "goal": "Ask whether you need to do anything else.",
+  "opening": "Your library card is ready. Here you go.",
+  "target": "Is there anything else I need to do?",
+  "ctx": "办完图书证，离开前确认是否还有其他手续。"
  }
 ]
