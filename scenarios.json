@@ -1185,7 +1185,7 @@
   "id": 117,
   "cat": "Clarify & Repair",
   "name": "Clear up a misunderstanding",
-  "setup": "You asked for a table inside the restaurant. The waiter thinks you want takeaway.",
+  "setup": "You and a friend asked for a table inside the restaurant. The waiter thinks you want takeaway.",
   "goal": "Explain that you want to eat inside.",
   "opening": "So you'd like your food to go?",
   "target": "Sorry, that's not quite what I meant. We'd like to eat inside.",
@@ -1205,11 +1205,11 @@
   "id": 119,
   "cat": "Clarify & Repair",
   "name": "Fifteen or fifty?",
-  "setup": "You are asking about a call-out fee over a noisy phone line. You cannot tell whether the price is fifteen or fifty dollars.",
+  "setup": "You are on the phone asking about a call-out fee. You are not sure whether they said fifteen or fifty dollars.",
   "goal": "Check which amount they said.",
   "opening": "The call-out fee is fifty dollars.",
   "target": "Did you say fifteen or fifty?",
-  "ctx": "电话里没听清上门费是十五还是五十美元，确认金额。"
+  "ctx": "电话里问上门费，不确定对方说的是十五还是五十澳元，确认金额。"
  },
  {
   "id": 120,
