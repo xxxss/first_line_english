@@ -1280,5 +1280,120 @@
   "opening": "Your library card is ready. Here you go.",
   "target": "Is there anything else I need to do?",
   "ctx": "办完图书证，离开前确认是否还有其他手续。"
+ },
+ {
+  "id": 127,
+  "cat": "Parents & Kids",
+  "name": "Which one is yours?",
+  "setup": "School pickup. You are waiting at the gate next to another parent.",
+  "goal": "Point out your child, then ask back.",
+  "opening": "Which one's yours?",
+  "target": "The little one in the red hat — that's Mia. Which one's yours?",
+  "ctx": "放学在校门口等孩子，旁边的家长问哪个是你家的。"
+ },
+ {
+  "id": 128,
+  "cat": "Parents & Kids",
+  "name": "Break the ice at the gate",
+  "setup": "You see the same parent at the school gate every afternoon, but you have never spoken.",
+  "goal": "Say hi and start a conversation.",
+  "opening": "",
+  "target": "Hi! I don't think we've met — which one's yours?",
+  "ctx": "每天放学都碰到同一位家长，从没说过话，主动打招呼。",
+  "selfStart": true
+ },
+ {
+  "id": 129,
+  "cat": "Parents & Kids",
+  "name": "Chilly morning",
+  "setup": "Cold morning drop-off. Another parent rubs her hands together next to you.",
+  "goal": "Agree and add a comment.",
+  "opening": "Bit chilly this morning, isn't it?",
+  "target": "Tell me about it! Getting them out the door was a mission.",
+  "ctx": "冷天早上送孩子，旁边家长说今天好冷。"
+ },
+ {
+  "id": 130,
+  "cat": "Parents & Kids",
+  "name": "Weekend chat",
+  "setup": "Monday morning drop-off. A parent you know turns to you.",
+  "goal": "Answer, then ask back.",
+  "opening": "Get up to much on the weekend?",
+  "target": "Not really — a birthday party and the park. What about you guys?",
+  "ctx": "周一早上送孩子，认识的家长问你周末干了什么。"
+ },
+ {
+  "id": 131,
+  "cat": "Parents & Kids",
+  "name": "Swimming lessons",
+  "setup": "You are sitting by the pool watching the kids' swimming lesson. The parent next to you starts chatting.",
+  "goal": "Answer, then ask back.",
+  "opening": "How long has yours been doing lessons here?",
+  "target": "Just since the start of term. She loves it — how about yours?",
+  "ctx": "在泳池边看孩子上游泳课，旁边家长问你孩子学了多久。"
+ },
+ {
+  "id": 132,
+  "cat": "Parents & Kids",
+  "name": "Compliment at soccer",
+  "setup": "Saturday kids' soccer. You are on the sideline next to a parent whose son just scored.",
+  "goal": "Compliment their child and ask about it.",
+  "opening": "",
+  "target": "Your son's a great little player — has he been playing long?",
+  "ctx": "周六孩子踢足球，旁边家长的儿子刚进球，你夸一句并接着聊。",
+  "selfStart": true
+ },
+ {
+  "id": 133,
+  "cat": "Parents & Kids",
+  "name": "The new teacher",
+  "setup": "Afternoon pickup. A parent from your child's class asks about the new term.",
+  "goal": "Answer positively.",
+  "opening": "How's she finding the new teacher?",
+  "target": "Really good, actually — she talks about her all the time.",
+  "ctx": "放学时同班家长问你孩子觉得新老师怎么样。"
+ },
+ {
+  "id": 134,
+  "cat": "Parents & Kids",
+  "name": "Suggest a playdate",
+  "setup": "After school, your daughter and another girl are playing happily at the playground. Her mum is standing next to you.",
+  "goal": "Suggest the kids get together.",
+  "opening": "",
+  "target": "The girls get on so well — we should get them together one weekend.",
+  "ctx": "放学后两个女孩在操场玩得很开心，你向对方妈妈提议约个周末一起玩。",
+  "selfStart": true
+ },
+ {
+  "id": 135,
+  "cat": "Parents & Kids",
+  "name": "Swap numbers",
+  "setup": "You are chatting with a parent at pickup, and the kids are good friends.",
+  "goal": "Agree and offer your number.",
+  "opening": "We should organise a playdate sometime!",
+  "target": "Definitely! Here, let me give you my number.",
+  "ctx": "和家长聊天，对方提议约孩子一起玩，你答应并给电话号码。"
+ },
+ {
+  "id": 136,
+  "cat": "Parents & Kids",
+  "name": "Forgot their name",
+  "setup": "A friendly parent says hello. You have chatted before, but you have forgotten her name.",
+  "goal": "Admit it politely and ask.",
+  "opening": "",
+  "target": "Sorry, I've completely forgotten your name — I'm terrible with names!",
+  "ctx": "一位聊过的家长跟你打招呼，你忘了她的名字，礼貌地承认并问一下。",
+  "selfStart": true
+ },
+ {
+  "id": 137,
+  "cat": "Parents & Kids",
+  "name": "Wrap it up",
+  "setup": "You are chatting at the gate when your child runs out of class towards you.",
+  "goal": "End the chat politely.",
+  "opening": "",
+  "target": "Anyway, I'd better get this one home — see you tomorrow!",
+  "ctx": "在校门口聊着天，孩子跑出来了，你礼貌地结束对话。",
+  "selfStart": true
  }
 ]
